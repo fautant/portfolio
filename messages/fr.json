@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "title": "Félix AUTANT - Développeur Web Fullstack | Symfony, Laravel, Next.js",
+    "description": "Portfolio de Félix AUTANT, développeur web fullstack spécialisé en Symfony et Laravel. Étudiant en 3ème année informatique, disponible pour projets freelance."
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "À propos",
+    "skills": "Compétences",
+    "projects": "Projets",
+    "contact": "Contact",
+    "cv": "CV"
+  },
+  "hero": {
+    "available": "Disponible pour projets freelance",
+    "role": "Développeur Junior Fullstack",
+    "specializedIn": "Spécialisé en",
+    "tagline": "Étudiant en 3ème année à l'IUT Informatique d'Anglet. Passionné par le développement web moderne et les architectures robustes.",
+    "viewProjects": "Voir mes projets",
+    "contact": "Me contacter",
+    "downloadCV": "Télécharger CV",
+    "studying": "Étudiant"
+  },
+  "about": {
+    "title": "À propos de moi",
+    "subtitle": "Développeur passionné en formation",
+    "description": "Étudiant en 3ème année de BUT Informatique à l'IUT d'Anglet, je me spécialise dans le développement web fullstack avec une expertise particulière en Symfony et Laravel.",
+    "education": {
+      "title": "Formation",
+      "degree1": "BUT Informatique (3ème année)",
+      "school1": "IUT Informatique d'Anglet",
+      "year1": "2023-2026",
+      "degree2": "BAC STI2D - Option SIN",
+      "school2": "Lycée privé La Salle, Alès",
+      "year2": "2021",
+      "mention": "Mention Assez Bien"
+    },
+    "experience": {
+      "title": "Expérience",
+      "job1": "Développeur Fullstack",
+      "company1": "Jeewago, Anglet",
+      "period1": "Avril - Juin 2025",
+      "description1": "Stage de développement d'un site d'analyse HBJO"
+    },
+    "interests": {
+      "title": "Centres d'intérêt",
+      "photography": "Photographie",
+      "hiking": "Randonnée",
+      "reading": "Lecture"
+    },
+    "softSkills": {
+      "title": "Soft Skills",
+      "teamwork": "Esprit d'équipe",
+      "organized": "Organisé",
+      "adaptability": "Adaptabilité"
+    },
+    "languages": {
+      "title": "Langues",
+      "french": "Français (natif)",
+      "english": "Anglais (B2)"
+    }
+  },
+  "skills": {
+    "title": "Mes Compétences",
+    "subtitle": "Technologies et outils que je maîtrise",
+    "categories": {
+      "backend": "Backend",
+      "frontend": "Frontend",
+      "mobile": "Mobile",
+      "database": "Bases de données",
+      "devops": "DevOps & Outils",
+      "languages": "Langages"
+    }
+  },
+  "projects": {
+    "title": "Mes Projets",
+    "subtitle": "Découvrez mes réalisations",
+    "viewAll": "Voir tous les projets",
+    "viewCode": "Voir le code",
+    "viewDemo": "Voir la démo",
+    "technologies": "Technologies",
+    "role": "Mon rôle",
+    "filterAll": "Tous",
+    "noProjects": "Aucun projet trouvé"
+  },
+  "contact": {
+    "title": "Me Contacter",
+    "subtitle": "Une question ou un projet ? N'hésitez pas à me contacter",
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Votre nom",
+      "email": "Email",
+      "emailPlaceholder": "votre@email.com",
+      "subject": "Sujet",
+      "subjectPlaceholder": "Sujet de votre message",
+      "message": "Message",
+      "messagePlaceholder": "Décrivez votre projet ou votre question...",
+      "type": "Type de demande",
+      "typeJob": "Offre d'emploi",
+      "typeFreelance": "Projet freelance",
+      "typeQuestion": "Question",
+      "typeOther": "Autre",
+      "send": "Envoyer",
+      "sending": "Envoi en cours..."
+    },
+    "info": {
+      "title": "Informations de contact",
+      "email": "Email",
+      "phone": "Téléphone",
+      "location": "Localisation",
+      "locationValue": "Anglet (64600), France"
+    },
+    "success": "Message envoyé avec succès !",
+    "error": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "footer": {
+    "rights": "Tous droits réservés",
+    "madeWith": "Fait avec",
+    "by": "par"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent"
+  }
+}
