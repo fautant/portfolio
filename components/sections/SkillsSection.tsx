@@ -7,42 +7,37 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { SectionWrapper } from "./SectionWrapper";
 import { TextReveal } from "@/components/animations/TextReveal";
 import { ParticleCanvas } from "@/components/animations/ParticleCanvas";
+import { SpotlightCard } from "@/components/animations/SpotlightCard";
 import { skillCategories, type Skill } from "@/data/skills";
 import { cn } from "@/lib/utils";
 
 const categoryConfig: Record<
   string,
-  { gradient: string; barColor: string; colSpan: string }
+  { gradient: string; barColor: string }
 > = {
   backend: {
     gradient: "from-primary to-primary-light",
     barColor: "bg-primary",
-    colSpan: "sm:col-span-2 lg:col-span-1",
   },
   frontend: {
     gradient: "from-secondary to-secondary-light",
     barColor: "bg-secondary",
-    colSpan: "sm:col-span-2 lg:col-span-1",
   },
   mobile: {
     gradient: "from-accent to-accent-light",
     barColor: "bg-accent",
-    colSpan: "",
   },
   database: {
     gradient: "from-primary to-secondary",
     barColor: "bg-gradient-primary",
-    colSpan: "",
   },
   devops: {
     gradient: "from-secondary to-accent",
     barColor: "bg-secondary",
-    colSpan: "",
   },
   languages: {
     gradient: "from-accent to-primary",
     barColor: "bg-accent",
-    colSpan: "",
   },
 };
 
@@ -112,45 +107,53 @@ export function SkillsSection() {
 
         <div
           ref={gridRef}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-5xl mx-auto"
         >
           {skillCategories.map((category) => {
             const config = categoryConfig[category.key] || {
               gradient: "from-primary to-secondary",
               barColor: "bg-primary",
-              colSpan: "",
             };
 
-            return (
-              <div
-                key={category.key}
-                data-skill-card
-                className={cn(
-                  "rounded-2xl p-6 backdrop-blur-xl bg-white/80 dark:bg-white/5 border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1",
-                  config.colSpan
-                )}
-              >
-                {/* Category header */}
-                <div
-                  className={cn(
-                    "inline-block px-4 py-2 rounded-full text-white font-semibold text-sm mb-5 bg-gradient-to-r",
-                    config.gradient
-                  )}
-                >
-                  {t(`categories.${category.key}`)}
-                </div>
+            const hasMany = category.skills.length > 6;
 
-                {/* Skills with bars */}
-                <div className="space-y-3">
-                  {category.skills.map((skill) => (
-                    <SkillRow
-                      key={skill.name}
-                      skill={skill}
-                      barColor={config.barColor}
-                    />
-                  ))}
+            return (
+              <SpotlightCard
+                key={category.key}
+                className="rounded-2xl"
+              >
+                <div
+                  data-skill-card
+                  className="h-full rounded-2xl p-6 backdrop-blur-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1"
+                >
+                  {/* Category header */}
+                  <div
+                    className={cn(
+                      "inline-block px-4 py-2 rounded-full text-white font-semibold text-sm mb-5 bg-gradient-to-r",
+                      config.gradient
+                    )}
+                  >
+                    {t(`categories.${category.key}`)}
+                  </div>
+
+                  {/* Skills with bars — 2 columns for large categories */}
+                  <div
+                    className={cn(
+                      hasMany
+                        ? "grid grid-cols-2 gap-x-6 gap-y-3"
+                        : "space-y-3"
+                    )}
+                  >
+                    {category.skills.map((skill) => (
+                      <SkillRow
+                        key={skill.name}
+                        skill={skill}
+                        barColor={config.barColor}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              </SpotlightCard>
             );
           })}
         </div>
@@ -186,7 +189,7 @@ function SkillRow({
       <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
           data-skill-bar={skill.level}
-          className={cn("h-full rounded-full", barColor)}
+          className={cn("h-full rounded-full transition-shadow duration-300", barColor)}
           style={{ width: `${percentage}%` }}
         />
       </div>

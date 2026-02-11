@@ -111,6 +111,21 @@ export function AboutSection() {
           start: "top 85%",
           once: true,
         });
+
+        // Subtle parallax on each card
+        cards.forEach((card, i) => {
+          const yOffset = i % 2 === 0 ? 20 : -20;
+          gsap.to(card, {
+            y: yOffset,
+            ease: "none",
+            scrollTrigger: {
+              trigger: card,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1,
+            },
+          });
+        });
       }
     });
 
@@ -192,7 +207,7 @@ export function AboutSection() {
         {/* Soft Skills */}
         <div
           data-card
-          className="rounded-2xl p-6 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1"
+          className="rounded-2xl p-6 bg-white dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1"
         >
           <h4 className="font-bold text-text-dark dark:text-text-light mb-4 flex items-center gap-2">
             <Zap className="w-5 h-5 text-primary" />
@@ -208,7 +223,7 @@ export function AboutSection() {
         {/* Languages */}
         <div
           data-card
-          className="rounded-2xl p-6 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1"
+          className="rounded-2xl p-6 bg-white dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1"
         >
           <h4 className="font-bold text-text-dark dark:text-text-light mb-4 flex items-center gap-2">
             <Globe className="w-5 h-5 text-secondary" />
@@ -242,7 +257,7 @@ export function AboutSection() {
         {/* Interests */}
         <div
           data-card
-          className="rounded-2xl p-6 bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 sm:col-span-2 lg:col-span-1"
+          className="rounded-2xl p-6 bg-white dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all hover:-translate-y-1 sm:col-span-2 lg:col-span-1"
         >
           <h4 className="font-bold text-text-dark dark:text-text-light mb-4 flex items-center gap-2">
             <Camera className="w-5 h-5 text-accent" />
@@ -267,7 +282,7 @@ function SkillPill({
   label: string;
 }) {
   return (
-    <div className="flex items-center gap-3 p-2 rounded-xl bg-background-light/50 dark:bg-background-dark/50">
+    <div className="flex items-center gap-3 p-2 rounded-xl bg-gray-50 dark:bg-background-dark/50">
       <div className="text-primary">{icon}</div>
       <span className="text-sm font-medium text-text-dark dark:text-text-light">
         {label}

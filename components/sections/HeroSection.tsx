@@ -129,7 +129,7 @@ export function HeroSection() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background-light dark:bg-background-dark pt-16"
+      className="relative min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark pt-16"
     >
       {/* Gradient mesh background */}
       <div ref={meshRef} className="absolute inset-0 overflow-hidden">
@@ -150,10 +150,10 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center">
           {/* Left column: Text & CTAs */}
           <div ref={contentRef} className="text-left">
-            {/* "Available" badge */}
+            {/* "Available" badge with glow pulse */}
             <div
               data-hero-badge
-              className="inline-flex items-center gap-2 bg-gradient-primary text-white px-4 py-2 rounded-full text-sm font-medium mb-6 shadow-primary"
+              className="inline-flex items-center gap-2 bg-gradient-primary text-white px-4 py-2 rounded-full text-sm font-medium mb-6 shadow-primary animate-glow-pulse"
             >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
@@ -209,7 +209,7 @@ export function HeroSection() {
                 <Link
                   data-hero-cta
                   href="#projects"
-                  className="group inline-flex items-center gap-2 bg-gradient-primary hover:shadow-glow-primary text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
+                  className="btn-shine group inline-flex items-center gap-2 bg-gradient-primary hover:shadow-glow-primary text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
                 >
                   {t("viewProjects")}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -220,7 +220,7 @@ export function HeroSection() {
                 <Link
                   data-hero-cta
                   href="#contact"
-                  className="group inline-flex items-center gap-2 bg-secondary hover:shadow-glow-secondary text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
+                  className="btn-shine group inline-flex items-center gap-2 bg-secondary hover:shadow-glow-secondary text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
                 >
                   {t("contact")}
                   <Mail className="w-5 h-5" />
@@ -232,7 +232,7 @@ export function HeroSection() {
                   data-hero-cta
                   href="/cv/CV_Felix_AUTANT_FR.pdf"
                   download
-                  className="group inline-flex items-center gap-2 border-2 border-accent text-accent hover:bg-accent hover:text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
+                  className="btn-shine group inline-flex items-center gap-2 border-2 border-accent text-accent hover:bg-accent hover:text-white px-6 py-3 rounded-full font-semibold transition-all duration-300"
                 >
                   {t("downloadCV")}
                   <Download className="w-5 h-5" />
@@ -270,7 +270,7 @@ export function HeroSection() {
                     className="p-2 rounded-full bg-text-dark dark:bg-text-light text-white dark:text-text-dark hover:scale-110 transition-transform"
                     aria-label="GitHub"
                   >
-                    <Github className="w-5 h-5" />
+                    <Github className="w-5 h-5 transition-transform hover:rotate-12" />
                   </a>
                 </MagneticButton>
 
@@ -282,7 +282,7 @@ export function HeroSection() {
                     className="p-2 rounded-full bg-[#0A66C2] text-white hover:scale-110 transition-transform"
                     aria-label="LinkedIn"
                   >
-                    <Linkedin className="w-5 h-5" />
+                    <Linkedin className="w-5 h-5 transition-transform hover:rotate-12" />
                   </a>
                 </MagneticButton>
               </div>
@@ -291,7 +291,10 @@ export function HeroSection() {
 
           {/* Right column: Three.js 3D orb */}
           <div ref={visualRef} className="relative hidden lg:block h-[500px]">
-            <HeroOrb />
+            {/* Oversized container so rings aren't clipped by the canvas */}
+            <div className="absolute -inset-32 xl:-inset-40">
+              <HeroOrb />
+            </div>
           </div>
         </div>
       </div>

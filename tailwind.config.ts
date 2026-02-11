@@ -62,15 +62,15 @@ const config: Config = {
           900: "#865D0B",
         },
         background: {
-          light: "#F5E6D3", // Beige/Crème
+          light: "#FFFFFF", // Blanc pur
           dark: "#1A1A1A", // Fond sombre
-          "light-alt": "#FEFBF6",
+          "light-alt": "#F8FAFC", // Gris très clair (slate-50)
           "dark-alt": "#252525",
         },
         text: {
-          dark: "#4A4A4A", // Texte principal
+          dark: "#1E293B", // Slate-800 (fort contraste)
           light: "#F5F5F5", // Texte sur fond sombre
-          muted: "#6B6B6B",
+          muted: "#64748B", // Slate-500
           "muted-light": "#D1D1D1",
         },
         // Dégradés prédéfinis
@@ -121,6 +121,8 @@ const config: Config = {
         "gradient-shift": "gradientShift 8s ease infinite",
         "float": "float 6s ease-in-out infinite",
         "glow": "glow 2s ease-in-out infinite alternate",
+        "marquee": "marquee 30s linear infinite",
+        "glow-pulse": "glowPulse 2s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -158,6 +160,14 @@ const config: Config = {
         glow: {
           "0%": { boxShadow: "0 0 20px rgba(255, 92, 147, 0.3)" },
           "100%": { boxShadow: "0 0 40px rgba(255, 92, 147, 0.6)" },
+        },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
+        glowPulse: {
+          "0%, 100%": { boxShadow: "0 0 10px rgba(255, 92, 147, 0.3), 0 0 20px rgba(255, 92, 147, 0.1)" },
+          "50%": { boxShadow: "0 0 20px rgba(255, 92, 147, 0.5), 0 0 40px rgba(255, 92, 147, 0.2)" },
         },
       },
       boxShadow: {

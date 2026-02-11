@@ -6,25 +6,25 @@
   :root {
     --radius: 0.75rem;
 
-    /* Light mode */
-    --background: 35 38% 92%;
-    --foreground: 0 0% 29%;
-    --card: 35 50% 97%;
-    --card-foreground: 0 0% 29%;
-    --popover: 35 50% 97%;
-    --popover-foreground: 0 0% 29%;
+    /* Light mode — clean white modern */
+    --background: 0 0% 100%;
+    --foreground: 217 33% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 217 33% 17%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 217 33% 17%;
     --primary: 340 100% 68%;
     --primary-foreground: 0 0% 100%;
     --secondary: 24 100% 67%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 35 20% 85%;
-    --muted-foreground: 0 0% 42%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
     --accent: 43 78% 59%;
     --accent-foreground: 0 0% 20%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 35 20% 82%;
-    --input: 35 20% 82%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
     --ring: 340 100% 68%;
   }
 
@@ -71,8 +71,8 @@
   }
 
   body {
-    background-color: #F5E6D3;
-    color: #4A4A4A;
+    background-color: #FFFFFF;
+    color: #1E293B;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -90,7 +90,7 @@
   }
 
   ::-webkit-scrollbar-track {
-    background-color: #F5E6D3;
+    background-color: #FFFFFF;
   }
 
   .dark ::-webkit-scrollbar-track {
@@ -108,8 +108,8 @@
 
   /* Selection */
   ::selection {
-    background-color: rgba(255, 92, 147, 0.3);
-    color: #4A4A4A;
+    background-color: rgba(255, 92, 147, 0.2);
+    color: #1E293B;
   }
 
   .dark ::selection {
@@ -194,7 +194,7 @@
   /* Focus styles */
   .focus-ring:focus {
     outline: none;
-    box-shadow: 0 0 0 2px #F5E6D3, 0 0 0 4px #FF5C93;
+    box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #FF5C93;
   }
 
   .dark .focus-ring:focus {
@@ -217,6 +217,69 @@
   }
 }
 
+@layer components {
+  /* Button shine sweep effect */
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.3) 45%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.3) 55%,
+      transparent 60%
+    );
+    transform: translateX(-150%);
+    transition: none;
+  }
+
+  .btn-shine:hover::after {
+    animation: shineSweep 0.6s ease-in-out;
+  }
+
+  @keyframes shineSweep {
+    0% { transform: translateX(-150%); }
+    100% { transform: translateX(150%); }
+  }
+
+  /* Featured badge shimmer */
+  .badge-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .badge-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* Skill bar glow on hover */
+  .group:hover [data-skill-bar] {
+    box-shadow: 0 0 12px currentColor;
+    transition: box-shadow 0.3s ease;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -229,5 +292,19 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+/* Reduced motion: disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-glow-pulse,
+  .btn-shine::after,
+  .badge-shimmer::after {
+    animation: none !important;
+  }
+
+  .btn-shine:hover::after {
+    animation: none !important;
   }
 }

@@ -1,16 +1,43 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Github, Linkedin, Mail, Heart, ArrowRight } from "lucide-react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 export function Footer() {
   const t = useTranslations("footer");
   const tNav = useTranslations("nav");
   const currentYear = new Date().getFullYear();
+  const footerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!footerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const cols = footerRef.current!.querySelectorAll("[data-footer-col]");
+      gsap.set(cols, { y: 30, opacity: 0 });
+
+      ScrollTrigger.batch(cols, {
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            y: 0,
+            opacity: 1,
+            stagger: 0.1,
+            duration: 0.6,
+            ease: "power3.out",
+          }),
+        start: "top 90%",
+        once: true,
+      });
+    }, footerRef.current);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <footer className="bg-white dark:bg-background-dark-alt border-t border-border">
+    <footer ref={footerRef} className="bg-white dark:bg-background-dark-alt border-t border-border">
       {/* CTA banner */}
       <div className="bg-gradient-full py-12 px-4">
         <div className="container mx-auto max-w-3xl text-center">
@@ -32,7 +59,7 @@ export function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
           {/* Logo & description */}
-          <div>
+          <div data-footer-col>
             <Link
               href="/"
               className="font-display font-bold text-xl text-text-dark dark:text-text-light"
@@ -46,7 +73,7 @@ export function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div>
+          <div data-footer-col>
             <h4 className="font-semibold text-text-dark dark:text-text-light mb-3">
               {t("quickLinks")}
             </h4>
@@ -65,7 +92,7 @@ export function Footer() {
           </div>
 
           {/* Social */}
-          <div>
+          <div data-footer-col>
             <h4 className="font-semibold text-text-dark dark:text-text-light mb-3">
               Contact
             </h4>

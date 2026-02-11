@@ -159,7 +159,7 @@ export function HeroOrb() {
   return (
     <div className="w-full h-full min-h-[350px]">
       <Canvas
-        camera={{ position: [0, 0, 7], fov: 45 }}
+        camera={{ position: [0, 0, 9], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}

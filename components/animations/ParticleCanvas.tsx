@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { animate, stagger } from "animejs";
+import { gsap } from "@/lib/gsap";
 
 interface Particle {
   x: number;
@@ -49,13 +49,13 @@ export function ParticleCanvas({ className }: { className?: string }) {
       color: COLORS[Math.floor(Math.random() * COLORS.length)]!,
     }));
 
-    // Animate particle opacity in with anime.js
+    // Animate particle opacity in with GSAP stagger
     const opacityTargets = particlesRef.current.map(() => ({ opacity: 0 }));
-    animate(opacityTargets, {
+    gsap.to(opacityTargets, {
       opacity: 1,
-      duration: 1000,
-      delay: stagger(20),
-      easing: "easeOutQuad",
+      duration: 1,
+      stagger: 0.02,
+      ease: "power2.out",
     });
 
     // IntersectionObserver to pause when not visible
@@ -108,15 +108,13 @@ export function ParticleCanvas({ className }: { className?: string }) {
       // Draw particles
       particles.forEach((p, i) => {
         const alpha = opacityTargets[i]?.opacity ?? 1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color.replace(")", `, ${alpha * 0.7})`).replace("rgb", "rgba");
-
-        // Use hex to rgba
         const hex = p.color;
         const r = parseInt(hex.slice(1, 3), 16);
         const g = parseInt(hex.slice(3, 5), 16);
         const b = parseInt(hex.slice(5, 7), 16);
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.7})`;
         ctx.fill();
       });

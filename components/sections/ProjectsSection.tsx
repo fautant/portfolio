@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { AnimatePresence, motion } from "framer-motion";
 import { Github, ExternalLink, Code2 } from "lucide-react";
-import { gsap } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { SectionWrapper } from "./SectionWrapper";
 import { TextReveal } from "@/components/animations/TextReveal";
+import { SpotlightCard } from "@/components/animations/SpotlightCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { projects, getAllCategories, type Project } from "@/data/projects";
@@ -17,7 +18,6 @@ export function ProjectsSection() {
   const t = useTranslations("projects");
   const locale = useLocale();
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  const gridRef = useRef<HTMLDivElement>(null);
 
   const categories = getAllCategories();
 
@@ -25,6 +25,33 @@ export function ProjectsSection() {
     activeFilter === "all"
       ? projects
       : projects.filter((p) => p.category === activeFilter);
+
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // GSAP scroll entrance for project cards
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const cards = sectionRef.current!.querySelectorAll("[data-project-card]");
+      gsap.set(cards, { y: 40, opacity: 0 });
+
+      ScrollTrigger.batch(cards, {
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            y: 0,
+            opacity: 1,
+            stagger: 0.08,
+            duration: 0.6,
+            ease: "power3.out",
+          }),
+        start: "top 85%",
+        once: true,
+      });
+    }, sectionRef.current);
+
+    return () => ctx.revert();
+  }, [activeFilter]);
 
   const featured = filteredProjects.find((p) => p.featured);
   const rest = filteredProjects.filter((p) => p !== featured);
@@ -89,7 +116,7 @@ export function ProjectsSection() {
       </AnimatePresence>
 
       {/* Rest of projects grid */}
-      <div ref={gridRef} className="grid md:grid-cols-2 gap-6">
+      <div ref={sectionRef} className="grid md:grid-cols-2 gap-6">
         <AnimatePresence mode="popLayout">
           {rest.map((project, index) => (
             <motion.div
@@ -128,10 +155,10 @@ function FilterButton({
     <button
       onClick={onClick}
       className={cn(
-        "px-5 py-2 rounded-full font-medium transition-all duration-300",
+        "px-5 py-2 rounded-full font-medium transition-all duration-300 active:scale-95",
         active
           ? "bg-gradient-primary text-white shadow-primary"
-          : "bg-white/80 dark:bg-white/5 backdrop-blur-sm text-text-muted dark:text-text-muted-light hover:text-primary border border-white/30 dark:border-white/10"
+          : "bg-white dark:bg-white/5 backdrop-blur-sm text-text-muted dark:text-text-muted-light hover:text-primary border border-gray-200 dark:border-white/10"
       )}
     >
       {children}
@@ -159,17 +186,40 @@ function FeaturedProjectCard({
       : project.role.fr
     : null;
 
+  const featuredCardRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!featuredCardRef.current || !iconRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.to(iconRef.current!, {
+        y: -20,
+        ease: "none",
+        scrollTrigger: {
+          trigger: featuredCardRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+        },
+      });
+    }, featuredCardRef.current);
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <div className="group relative rounded-2xl overflow-hidden bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all">
+    <SpotlightCard className="rounded-2xl">
+    <div ref={featuredCardRef} data-project-card data-cursor-text="View" className="group relative rounded-2xl overflow-hidden bg-white dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all">
       {/* Gradient glow on hover */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
 
       <div className="grid md:grid-cols-2 gap-0">
         {/* Image side */}
         <div className="relative h-48 md:h-auto bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center overflow-hidden">
-          <Code2 className="w-20 h-20 text-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500" />
+          <div ref={iconRef}>
+            <Code2 className="w-20 h-20 text-primary/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500" />
+          </div>
           <div className="absolute top-4 left-4">
-            <Badge variant="gradient" className="text-xs">
+            <Badge variant="gradient" className="text-xs badge-shimmer">
               Featured
             </Badge>
           </div>
@@ -238,6 +288,7 @@ function FeaturedProjectCard({
         </div>
       </div>
     </div>
+    </SpotlightCard>
   );
 }
 
@@ -299,11 +350,14 @@ function TiltProjectCard({
   }, []);
 
   return (
+    <SpotlightCard className="h-full rounded-2xl">
     <div
       ref={cardRef}
+      data-project-card
+      data-cursor-text="View"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="group h-full rounded-2xl overflow-hidden bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-shadow"
+      className="group h-full rounded-2xl overflow-hidden bg-white dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-shadow"
       style={{ transformStyle: "preserve-3d" }}
     >
       {/* Gradient border glow on hover */}
@@ -383,5 +437,6 @@ function TiltProjectCard({
         </div>
       </div>
     </div>
+    </SpotlightCard>
   );
 }

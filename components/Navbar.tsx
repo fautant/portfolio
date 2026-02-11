@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,21 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const navRef = useRef<HTMLElement>(null);
+
+  // Slide-down entrance animation
+  useEffect(() => {
+    if (!navRef.current) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        navRef.current!,
+        { y: -100, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", delay: 0.2 }
+      );
+    }, navRef.current);
+
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

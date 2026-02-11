@@ -4,14 +4,40 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2 } from "lucide-react";
-import { gsap } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { SectionWrapper } from "./SectionWrapper";
 import { TextReveal } from "@/components/animations/TextReveal";
+import { SpotlightCard } from "@/components/animations/SpotlightCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ContactSection() {
   const t = useTranslations("contact");
+  const contactCardsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!contactCardsRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const cards = contactCardsRef.current!.querySelectorAll("[data-contact-card]");
+      gsap.set(cards, { y: 30, opacity: 0 });
+
+      ScrollTrigger.batch(cards, {
+        onEnter: (batch) =>
+          gsap.to(batch, {
+            y: 0,
+            opacity: 1,
+            stagger: 0.12,
+            duration: 0.6,
+            ease: "power3.out",
+          }),
+        start: "top 85%",
+        once: true,
+      });
+    }, contactCardsRef.current);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <SectionWrapper id="contact" background="alt" className="relative overflow-hidden">
@@ -36,7 +62,7 @@ export function ContactSection() {
 
         <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {/* Contact Info */}
-          <div className="space-y-6">
+          <div ref={contactCardsRef} className="space-y-6">
             <h3 className="text-heading-3 font-semibold text-text-dark dark:text-text-light mb-6">
               {t("info.title")}
             </h3>
@@ -63,10 +89,12 @@ export function ContactSection() {
             />
           </div>
 
-          {/* Contact Form - Glassmorphism card */}
-          <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-card">
-            <ContactForm />
-          </div>
+          {/* Contact Form - Glassmorphism card with spotlight */}
+          <SpotlightCard className="rounded-2xl">
+            <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-card">
+              <ContactForm />
+            </div>
+          </SpotlightCard>
         </div>
       </div>
     </SectionWrapper>
@@ -96,8 +124,9 @@ function ContactInfoCard({
 
   const content = (
     <motion.div
+      data-contact-card
       whileHover={{ x: 5 }}
-      className="flex items-center gap-4 p-4 rounded-xl bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all"
+      className="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all"
     >
       <div className={cn("p-3 rounded-xl", colorClasses[color])}>
         <Icon className="w-6 h-6" />
@@ -171,7 +200,7 @@ function ContactForm() {
         <select
           id="type"
           name="type"
-          className="peer w-full h-12 rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 px-4 py-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+          className="peer w-full h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 py-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
           required
         >
           <option value="job">{t("typeJob")}</option>
@@ -181,7 +210,7 @@ function ContactForm() {
         </select>
         <label
           htmlFor="type"
-          className="absolute -top-2.5 left-3 text-xs font-medium text-text-muted dark:text-text-muted-light bg-white/80 dark:bg-background-dark-alt/80 px-1 rounded"
+          className="absolute -top-2.5 left-3 text-xs font-medium text-text-muted dark:text-text-muted-light bg-white dark:bg-background-dark-alt/80 px-1 rounded"
         >
           {t("type")}
         </label>
@@ -246,7 +275,7 @@ function FloatingField({
         type={type}
         required={required}
         placeholder=" "
-        className="peer w-full h-12 rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 px-4 pt-4 pb-1 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm placeholder-transparent"
+        className="peer w-full h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 pt-4 pb-1 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm placeholder-transparent"
       />
       <label
         htmlFor={id}
@@ -277,7 +306,7 @@ function FloatingTextarea({
         rows={rows}
         required={required}
         placeholder=" "
-        className="peer w-full rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 px-4 pt-6 pb-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm placeholder-transparent resize-none"
+        className="peer w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 pt-6 pb-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm placeholder-transparent resize-none"
       />
       <label
         htmlFor={id}

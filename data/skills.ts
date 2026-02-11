@@ -35,13 +35,6 @@ export const skillCategories: SkillCategory[] = [
     ],
   },
   {
-    key: "mobile",
-    skills: [
-      { name: "Android Studio", level: 4, featured: true },
-      { name: "Java (Android)", level: 4 },
-    ],
-  },
-  {
     key: "database",
     skills: [
       { name: "MySQL", level: 5, featured: true },
@@ -59,6 +52,13 @@ export const skillCategories: SkillCategory[] = [
       { name: "GitHub", level: 5 },
       { name: "CI/CD", level: 3 },
       { name: "Linux", level: 4 },
+    ],
+  },
+  {
+    key: "mobile",
+    skills: [
+      { name: "Android Studio", level: 4, featured: true },
+      { name: "Java (Android)", level: 4 },
     ],
   },
   {

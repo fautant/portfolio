@@ -20,7 +20,7 @@ export function SectionWrapper({
 }: SectionWrapperProps) {
   const bgClasses = {
     default: "bg-background-light dark:bg-background-dark",
-    alt: "bg-white dark:bg-background-dark-alt",
+    alt: "bg-background-light-alt dark:bg-background-dark-alt",
     gradient: "bg-gradient-subtle",
   };
 
