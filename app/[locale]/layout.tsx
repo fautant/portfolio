@@ -5,6 +5,10 @@ import { locales, type Locale } from "@/i18n/config";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SmoothScroll } from "@/components/SmoothScroll";
+import { CustomCursor } from "@/components/animations/CustomCursor";
+import { ScrollProgress } from "@/components/ScrollProgress";
+import { BackToTop } from "@/components/BackToTop";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -37,11 +41,16 @@ export default async function LocaleLayout({
         enableSystem
         disableTransitionOnChange
       >
-        <div className="flex min-h-screen flex-col">
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </div>
+        <SmoothScroll>
+          <ScrollProgress />
+          <CustomCursor />
+          <BackToTop />
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </SmoothScroll>
       </ThemeProvider>
     </NextIntlClientProvider>
   );

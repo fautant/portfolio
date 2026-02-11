@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
+import { JsonLd } from "@/components/JsonLd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,8 +54,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html suppressHydrationWarning>
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.variable} ${poppins.variable} font-sans`}>
+        <JsonLd />
         {children}
       </body>
     </html>

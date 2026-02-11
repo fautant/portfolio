@@ -113,10 +113,19 @@
     "success": "Message envoyé avec succès !",
     "error": "Une erreur est survenue. Veuillez réessayer."
   },
+  "stats": {
+    "projects": "Projets réalisés",
+    "years": "Années d'études",
+    "languages": "Langues parlées",
+    "internship": "Stage professionnel"
+  },
   "footer": {
     "rights": "Tous droits réservés",
     "madeWith": "Fait avec",
-    "by": "par"
+    "by": "par",
+    "collaborate": "Collaborons ensemble",
+    "collaborateDesc": "Un projet en tête ? Discutons-en !",
+    "quickLinks": "Liens rapides"
   },
   "common": {
     "loading": "Chargement...",

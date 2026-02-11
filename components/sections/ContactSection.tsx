@@ -1,37 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, Loader2 } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2 } from "lucide-react";
+import { gsap } from "@/lib/gsap";
 import { SectionWrapper } from "./SectionWrapper";
-import { ScrollReveal } from "@/components/animations/ScrollReveal";
-import { Card, CardContent } from "@/components/ui/card";
+import { TextReveal } from "@/components/animations/TextReveal";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export function ContactSection() {
   const t = useTranslations("contact");
 
   return (
-    <SectionWrapper id="contact" background="alt">
-      <ScrollReveal>
+    <SectionWrapper id="contact" background="alt" className="relative overflow-hidden">
+      {/* Background decorative blobs */}
+      <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
+
+      <div className="relative z-10">
         <div className="text-center mb-12">
-          <h2 className="text-display font-display font-bold mb-4 text-text-dark dark:text-text-light">
+          <TextReveal
+            as="h2"
+            trigger="scroll"
+            splitBy="words"
+            className="text-display font-display font-bold mb-4 text-text-dark dark:text-text-light"
+          >
             {t("title")}
-          </h2>
+          </TextReveal>
           <p className="text-lg text-text-muted dark:text-text-muted-light max-w-2xl mx-auto">
             {t("subtitle")}
           </p>
         </div>
-      </ScrollReveal>
 
-      <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
-        {/* Contact Info */}
-        <ScrollReveal direction="left">
+        <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          {/* Contact Info */}
           <div className="space-y-6">
             <h3 className="text-heading-3 font-semibold text-text-dark dark:text-text-light mb-6">
               {t("info.title")}
@@ -44,7 +48,6 @@ export function ContactSection() {
               href="mailto:autantfelix@gmail.com"
               color="primary"
             />
-
             <ContactInfoCard
               icon={Phone}
               label={t("info.phone")}
@@ -52,7 +55,6 @@ export function ContactSection() {
               href="tel:+33602279283"
               color="secondary"
             />
-
             <ContactInfoCard
               icon={MapPin}
               label={t("info.location")}
@@ -60,23 +62,19 @@ export function ContactSection() {
               color="accent"
             />
           </div>
-        </ScrollReveal>
 
-        {/* Contact Form */}
-        <ScrollReveal direction="right">
-          <Card>
-            <CardContent className="pt-6">
-              <ContactForm />
-            </CardContent>
-          </Card>
-        </ScrollReveal>
+          {/* Contact Form - Glassmorphism card */}
+          <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-card">
+            <ContactForm />
+          </div>
+        </div>
       </div>
     </SectionWrapper>
   );
 }
 
 interface ContactInfoCardProps {
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
   href?: string;
@@ -99,7 +97,7 @@ function ContactInfoCard({
   const content = (
     <motion.div
       whileHover={{ x: 5 }}
-      className="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-background-dark shadow-card hover:shadow-card-hover transition-all"
+      className="flex items-center gap-4 p-4 rounded-xl bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-white/30 dark:border-white/10 shadow-card hover:shadow-card-hover transition-all"
     >
       <div className={cn("p-3 rounded-xl", colorClasses[color])}>
         <Icon className="w-6 h-6" />
@@ -131,63 +129,49 @@ function ContactForm() {
   const tContact = useTranslations("contact");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const checkRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (status === "success" && checkRef.current) {
+      const path = checkRef.current.querySelector("path");
+      if (path) {
+        const length = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+        gsap.to(path, {
+          strokeDashoffset: 0,
+          duration: 0.6,
+          ease: "power2.out",
+        });
+      }
+    }
+  }, [status]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setStatus("idle");
 
-    // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // For now, just show success - implement actual form submission later
     setStatus("success");
     setIsSubmitting(false);
-
-    // Reset form
     (e.target as HTMLFormElement).reset();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">{t("name")}</Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder={t("namePlaceholder")}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">{t("email")}</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder={t("emailPlaceholder")}
-            required
-          />
-        </div>
+        <FloatingField id="name" label={t("name")} required />
+        <FloatingField id="email" label={t("email")} type="email" required />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="subject">{t("subject")}</Label>
-        <Input
-          id="subject"
-          name="subject"
-          placeholder={t("subjectPlaceholder")}
-          required
-        />
-      </div>
+      <FloatingField id="subject" label={t("subject")} required />
 
-      <div className="space-y-2">
-        <Label htmlFor="type">{t("type")}</Label>
+      <div className="relative">
         <select
           id="type"
           name="type"
-          className="flex h-11 w-full rounded-xl border border-border bg-white dark:bg-background-dark-alt px-4 py-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="peer w-full h-12 rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 px-4 py-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
           required
         >
           <option value="job">{t("typeJob")}</option>
@@ -195,25 +179,23 @@ function ContactForm() {
           <option value="question">{t("typeQuestion")}</option>
           <option value="other">{t("typeOther")}</option>
         </select>
+        <label
+          htmlFor="type"
+          className="absolute -top-2.5 left-3 text-xs font-medium text-text-muted dark:text-text-muted-light bg-white/80 dark:bg-background-dark-alt/80 px-1 rounded"
+        >
+          {t("type")}
+        </label>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="message">{t("message")}</Label>
-        <Textarea
-          id="message"
-          name="message"
-          placeholder={t("messagePlaceholder")}
-          rows={5}
-          required
-        />
-      </div>
+      <FloatingTextarea id="message" label={t("message")} rows={5} required />
 
       {status === "success" && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-3 rounded-xl bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm"
+          className="flex items-center gap-2 p-3 rounded-xl bg-green-100/80 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm backdrop-blur-sm"
         >
+          <CheckCircle2 ref={checkRef} className="w-5 h-5 shrink-0" />
           {tContact("success")}
         </motion.div>
       )}
@@ -222,7 +204,7 @@ function ContactForm() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-3 rounded-xl bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm"
+          className="p-3 rounded-xl bg-red-100/80 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm backdrop-blur-sm"
         >
           {tContact("error")}
         </motion.div>
@@ -242,5 +224,67 @@ function ContactForm() {
         )}
       </Button>
     </form>
+  );
+}
+
+function FloatingField({
+  id,
+  label,
+  type = "text",
+  required,
+}: {
+  id: string;
+  label: string;
+  type?: string;
+  required?: boolean;
+}) {
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        name={id}
+        type={type}
+        required={required}
+        placeholder=" "
+        className="peer w-full h-12 rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 px-4 pt-4 pb-1 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm placeholder-transparent"
+      />
+      <label
+        htmlFor={id}
+        className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-muted-light text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-2 peer-[:not(:placeholder-shown)]:text-xs"
+      >
+        {label}
+      </label>
+    </div>
+  );
+}
+
+function FloatingTextarea({
+  id,
+  label,
+  rows = 4,
+  required,
+}: {
+  id: string;
+  label: string;
+  rows?: number;
+  required?: boolean;
+}) {
+  return (
+    <div className="relative">
+      <textarea
+        id={id}
+        name={id}
+        rows={rows}
+        required={required}
+        placeholder=" "
+        className="peer w-full rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 px-4 pt-6 pb-2 text-base text-text-dark dark:text-text-light focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm placeholder-transparent resize-none"
+      />
+      <label
+        htmlFor={id}
+        className="absolute left-4 top-4 text-text-muted dark:text-text-muted-light text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-primary peer-[:not(:placeholder-shown)]:top-1.5 peer-[:not(:placeholder-shown)]:text-xs"
+      >
+        {label}
+      </label>
+    </div>
   );
 }

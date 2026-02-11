@@ -113,10 +113,19 @@
     "success": "Message sent successfully!",
     "error": "An error occurred. Please try again."
   },
+  "stats": {
+    "projects": "Projects completed",
+    "years": "Years of study",
+    "languages": "Languages spoken",
+    "internship": "Professional internship"
+  },
   "footer": {
     "rights": "All rights reserved",
     "madeWith": "Made with",
-    "by": "by"
+    "by": "by",
+    "collaborate": "Let's collaborate",
+    "collaborateDesc": "Have a project in mind? Let's discuss!",
+    "quickLinks": "Quick links"
   },
   "common": {
     "loading": "Loading...",
