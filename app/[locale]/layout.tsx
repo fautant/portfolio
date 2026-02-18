@@ -9,6 +9,7 @@ import { SmoothScroll } from "@/components/SmoothScroll";
 import { CustomCursor } from "@/components/animations/CustomCursor";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { BackToTop } from "@/components/BackToTop";
+import { LoadingScreen } from "@/components/animations/LoadingScreen";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -41,6 +42,7 @@ export default async function LocaleLayout({
         enableSystem
         disableTransitionOnChange
       >
+        <LoadingScreen />
         <SmoothScroll>
           <ScrollProgress />
           <CustomCursor />

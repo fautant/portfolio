@@ -9,7 +9,8 @@
     "skills": "Skills",
     "projects": "Projects",
     "contact": "Contact",
-    "cv": "Resume"
+    "cv": "Resume",
+    "proposal": "Propose a project"
   },
   "hero": {
     "available": "Available for freelance projects",
@@ -126,6 +127,33 @@
     "collaborate": "Let's collaborate",
     "collaborateDesc": "Have a project in mind? Let's discuss!",
     "quickLinks": "Quick links"
+  },
+  "loading": {
+    "welcome": "Welcome to my portfolio",
+    "exploring": "Discover my projects and skills"
+  },
+  "proposal": {
+    "title": "Propose a Project",
+    "subtitle": "Have a project in mind? Describe it to me and I'll get back to you shortly.",
+    "backHome": "Back to home",
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "company": "Company (optional)",
+      "budget": "Estimated budget",
+      "budgetOptions": {
+        "lt1000": "Less than \u20ac1,000",
+        "1000_5000": "\u20ac1,000 - \u20ac5,000",
+        "5000_10000": "\u20ac5,000 - \u20ac10,000",
+        "gt10000": "More than \u20ac10,000"
+      },
+      "deadline": "Desired deadline",
+      "description": "Project description",
+      "send": "Send proposal",
+      "sending": "Sending..."
+    },
+    "success": "Proposal sent successfully! I'll get back to you shortly.",
+    "error": "An error occurred. Please try again."
   },
   "common": {
     "loading": "Loading...",

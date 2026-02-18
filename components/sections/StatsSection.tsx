@@ -88,7 +88,7 @@ export function StatsSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-16 overflow-hidden bg-gradient-to-r from-primary/5 via-secondary/5 to-accent/5"
+      className="relative py-16 overflow-hidden bg-background-light dark:bg-background-dark"
       style={{ backgroundSize: "200% 200%" }}
     >
       <div className="container-custom mx-auto px-4 sm:px-6 lg:px-8">

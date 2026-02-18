@@ -29,100 +29,167 @@ export function HeroSection() {
     const mesh = meshRef.current;
     if (!section || !content || !visual || !mesh) return;
 
-    const ctx = gsap.context(() => {
-      // Animated gradient mesh
-      const blobs = mesh.querySelectorAll(".mesh-blob");
-      blobs.forEach((blob, i) => {
-        gsap.to(blob, {
-          x: `random(-100, 100)`,
-          y: `random(-100, 100)`,
-          duration: `random(15, 25)`,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: i * 2,
-        });
-      });
+    let ctx: gsap.Context;
 
-      // Set initial hidden state for all hero elements
+    // Hide all hero elements instantly (no animation)
+    function hideHeroElements() {
+      gsap.set("[data-hero-name]", { opacity: 0 });
       gsap.set("[data-hero-badge]", { y: 30, opacity: 0 });
       gsap.set("[data-hero-role]", { y: 30, opacity: 0 });
       gsap.set("[data-hero-typing]", { y: 20, opacity: 0 });
       gsap.set("[data-hero-tagline]", { y: 20, opacity: 0 });
       gsap.set("[data-hero-cta]", { y: 30, opacity: 0 });
       gsap.set("[data-hero-social]", { y: 20, opacity: 0 });
-      gsap.set(visual, { opacity: 0 });
+      gsap.set(visual!, { opacity: 0 });
       gsap.set("[data-hero-scroll]", { y: -20, opacity: 0 });
+    }
 
-      // Hero timeline
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    // Start reveal timeline + parallax
+    function playHeroAnimations() {
+      // The loading screen name already flew to this position — show hero name instantly
+      gsap.set("[data-hero-name]", { opacity: 1 });
 
-      tl.to("[data-hero-badge]", {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-      })
-        .to(
-          "[data-hero-role]",
-          { y: 0, opacity: 1, duration: 0.6 },
-          "-=0.2"
-        )
-        .to(
-          "[data-hero-typing]",
-          { y: 0, opacity: 1, duration: 0.5 },
-          "-=0.2"
-        )
-        .to(
-          "[data-hero-tagline]",
-          { y: 0, opacity: 1, duration: 0.5 },
-          "-=0.2"
-        )
-        .to(
-          "[data-hero-cta]",
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.1 },
-          "-=0.2"
-        )
-        .to(
-          "[data-hero-social]",
-          { y: 0, opacity: 1, duration: 0.4 },
-          "-=0.2"
-        )
-        .to(
-          visual,
-          { opacity: 1, duration: 1, ease: "power2.out" },
-          "-=0.5"
-        )
-        .to(
-          "[data-hero-scroll]",
-          { opacity: 1, y: 0, duration: 0.5 },
-          "-=0.2"
-        );
+      ctx = gsap.context(() => {
+        // Animated gradient mesh
+        const blobs = mesh!.querySelectorAll(".mesh-blob");
+        blobs.forEach((blob, i) => {
+          gsap.to(blob, {
+            x: `random(-100, 100)`,
+            y: `random(-100, 100)`,
+            duration: `random(15, 25)`,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: i * 2,
+          });
+        });
 
-      // Parallax on scroll
-      gsap.to(content, {
-        y: -80,
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-        },
-      });
+        // Hero timeline
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-      gsap.to(visual, {
-        y: -40,
-        ease: "none",
-        scrollTrigger: {
-          trigger: section,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-        },
-      });
-    }, section);
+        tl.to("[data-hero-badge]", {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+        })
+          .to(
+            "[data-hero-role]",
+            { y: 0, opacity: 1, duration: 0.6 },
+            "-=0.2"
+          )
+          .to(
+            "[data-hero-typing]",
+            { y: 0, opacity: 1, duration: 0.5 },
+            "-=0.2"
+          )
+          .to(
+            "[data-hero-tagline]",
+            { y: 0, opacity: 1, duration: 0.5 },
+            "-=0.2"
+          )
+          .to(
+            "[data-hero-cta]",
+            { y: 0, opacity: 1, duration: 0.5, stagger: 0.1 },
+            "-=0.2"
+          )
+          .to(
+            "[data-hero-social]",
+            { y: 0, opacity: 1, duration: 0.4 },
+            "-=0.2"
+          )
+          .to(
+            visual!,
+            { opacity: 1, duration: 1, ease: "power2.out" },
+            "-=0.5"
+          )
+          .to(
+            "[data-hero-scroll]",
+            { opacity: 1, y: 0, duration: 0.5 },
+            "-=0.2"
+          );
 
-    return () => ctx.revert();
+        // Parallax on scroll
+        gsap.to(content!, {
+          y: -80,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        });
+
+        gsap.to(visual!, {
+          y: -40,
+          ease: "none",
+          scrollTrigger: {
+            trigger: section,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        });
+      }, section!);
+    }
+
+    // If loading screen already completed (revisit in same session), start immediately
+    const alreadyLoaded = (() => {
+      try {
+        return sessionStorage.getItem("portfolio-loaded") === "true";
+      } catch {
+        return true;
+      }
+    })();
+
+    if (alreadyLoaded) {
+      // Revisit: skip reveal animation, just setup parallax + blobs
+      ctx = gsap.context(() => {
+        const blobs = mesh!.querySelectorAll(".mesh-blob");
+        blobs.forEach((blob, i) => {
+          gsap.to(blob, {
+            x: `random(-100, 100)`,
+            y: `random(-100, 100)`,
+            duration: `random(15, 25)`,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            delay: i * 2,
+          });
+        });
+
+        gsap.to(content!, {
+          y: -80,
+          ease: "none",
+          scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1 },
+        });
+
+        gsap.to(visual!, {
+          y: -40,
+          ease: "none",
+          scrollTrigger: { trigger: section, start: "top top", end: "bottom top", scrub: 1 },
+        });
+      }, section!);
+    } else {
+      // "loading-prepare" fires BEFORE the split exit — hide elements so they're
+      // not visible when the overlay slides away
+      const onPrepare = () => hideHeroElements();
+      // "loading-complete" fires AFTER the split exit — now play the reveal
+      const onComplete = () => playHeroAnimations();
+
+      window.addEventListener("loading-prepare", onPrepare, { once: true });
+      window.addEventListener("loading-complete", onComplete, { once: true });
+
+      return () => {
+        window.removeEventListener("loading-prepare", onPrepare);
+        window.removeEventListener("loading-complete", onComplete);
+        if (ctx) ctx.revert();
+      };
+    }
+
+    return () => {
+      if (ctx) ctx.revert();
+    };
   }, []);
 
   return (
@@ -163,7 +230,7 @@ export function HeroSection() {
             </div>
 
             {/* Name */}
-            <h1 className="text-hero font-display font-bold mb-4 text-text-dark dark:text-text-light">
+            <h1 data-hero-name className="text-hero font-display font-bold mb-4 text-text-dark dark:text-text-light">
               <TextReveal delay={0.3} splitBy="chars" className="inline">
                 Félix
               </TextReveal>{" "}

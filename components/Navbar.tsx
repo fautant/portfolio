@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { Menu, X } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { Menu, X, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { ThemeToggle } from "./ThemeToggle";
@@ -20,6 +20,7 @@ const navLinks = [
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -123,6 +124,13 @@ export function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
+            <Link
+              href={`/${locale}/proposal`}
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
+            >
+              <Briefcase className="w-4 h-4" />
+              {t("proposal")}
+            </Link>
             <LanguageSwitcher />
             <ThemeToggle />
 
@@ -170,6 +178,14 @@ export function Navbar() {
                     </a>
                   );
                 })}
+                <Link
+                  href={`/${locale}/proposal`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 py-3 px-4 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
+                >
+                  <Briefcase className="w-4 h-4" />
+                  {t("proposal")}
+                </Link>
               </div>
             </motion.div>
           )}

@@ -9,7 +9,8 @@
     "skills": "Compétences",
     "projects": "Projets",
     "contact": "Contact",
-    "cv": "CV"
+    "cv": "CV",
+    "proposal": "Proposer un projet"
   },
   "hero": {
     "available": "Disponible pour projets freelance",
@@ -126,6 +127,33 @@
     "collaborate": "Collaborons ensemble",
     "collaborateDesc": "Un projet en tête ? Discutons-en !",
     "quickLinks": "Liens rapides"
+  },
+  "loading": {
+    "welcome": "Bienvenue sur mon portfolio",
+    "exploring": "Découvrez mes projets et compétences"
+  },
+  "proposal": {
+    "title": "Proposer un projet",
+    "subtitle": "Vous avez un projet en tête ? Décrivez-le moi et je vous recontacterai rapidement.",
+    "backHome": "Retour à l'accueil",
+    "form": {
+      "name": "Nom complet",
+      "email": "Email",
+      "company": "Entreprise (optionnel)",
+      "budget": "Budget estimé",
+      "budgetOptions": {
+        "lt1000": "Moins de 1 000 \u20ac",
+        "1000_5000": "1 000 \u20ac - 5 000 \u20ac",
+        "5000_10000": "5 000 \u20ac - 10 000 \u20ac",
+        "gt10000": "Plus de 10 000 \u20ac"
+      },
+      "deadline": "Date limite souhaitée",
+      "description": "Description du projet",
+      "send": "Envoyer la proposition",
+      "sending": "Envoi en cours..."
+    },
+    "success": "Proposition envoyée avec succès ! Je vous recontacterai rapidement.",
+    "error": "Une erreur est survenue. Veuillez réessayer."
   },
   "common": {
     "loading": "Chargement...",

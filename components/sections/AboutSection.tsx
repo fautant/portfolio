@@ -16,6 +16,7 @@ import {
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { SectionWrapper } from "./SectionWrapper";
 import { TextReveal } from "@/components/animations/TextReveal";
+import { ParticleCanvas } from "@/components/animations/ParticleCanvas";
 
 interface TimelineItem {
   year: string;
@@ -133,7 +134,8 @@ export function AboutSection() {
   }, []);
 
   return (
-    <SectionWrapper id="about" background="default">
+    <SectionWrapper id="about" background="alt" className="relative overflow-hidden">
+      <ParticleCanvas className="opacity-40 dark:opacity-60" />
       {/* Section heading */}
       <div className="text-center mb-16">
         <TextReveal
