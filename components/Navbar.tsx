@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
-import { Menu, X, Briefcase } from "lucide-react";
+import { Menu, X, Briefcase, Lock } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { ThemeToggle } from "./ThemeToggle";
@@ -131,6 +131,13 @@ export function Navbar() {
               <Briefcase className="w-4 h-4" />
               {t("proposal")}
             </Link>
+            <Link
+              href="/outils/connexion"
+              className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-text-muted dark:text-text-muted-light hover:text-primary transition-colors text-sm font-medium"
+            >
+              <Lock className="w-4 h-4" />
+              {t("login")}
+            </Link>
             <LanguageSwitcher />
             <ThemeToggle />
 
@@ -185,6 +192,14 @@ export function Navbar() {
                 >
                   <Briefcase className="w-4 h-4" />
                   {t("proposal")}
+                </Link>
+                <Link
+                  href="/outils/connexion"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 py-3 px-4 rounded-xl text-text-dark dark:text-text-light hover:bg-primary/10 hover:text-primary transition-colors font-medium"
+                >
+                  <Lock className="w-4 h-4" />
+                  {t("login")}
                 </Link>
               </div>
             </motion.div>

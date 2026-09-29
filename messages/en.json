@@ -10,7 +10,8 @@
     "projects": "Projects",
     "contact": "Contact",
     "cv": "Resume",
-    "proposal": "Propose a project"
+    "proposal": "Propose a project",
+    "login": "Log in"
   },
   "hero": {
     "available": "Available for freelance projects",

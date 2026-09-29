@@ -67,12 +67,19 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
     /contact          # Endpoint formulaire contact
     /proposal         # Endpoint proposition projet
     /newsletter       # Endpoint inscription newsletter (optionnel)
+  /outils             # Espace privé (noindex, connexion admin) — hors [locale]
+    /connexion        # Lien magique Supabase Auth, réservé à ADMIN_EMAIL
+    /(prive)/(shell)  # Tableau de bord, projets, outils Projet et Maquette (avec barre latérale)
+    /(prive)/(plein)  # Lexique du prompt design (pleine largeur)
 /components
+  /outils             # Composants des outils design (lexique, projet, maquette)
   /sections           # Sections réutilisables (Hero, Skills, Projects)
   /ui                 # Composants shadcn/ui
   /forms              # Formulaires (Contact, Proposal)
   /animations         # Composants animés (Framer Motion)
 /lib
+  /auth              # Clients Supabase avec session (server / browser), requireAdmin
+  /outils            # Logique pure des outils design (lexique, project, maquette)
   /supabase          # Client Supabase
   /resend            # Client Resend
   /better-auth       # Configuration Better-Auth
@@ -85,6 +92,15 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
   /en.json           # Traductions anglaises
   /fr.json           # Traductions françaises
 ```
+
+## 🧰 Espace /outils (privé)
+
+Outils de la catégorie **Design**, chaînés autour d'un même projet : **Projet** (brief guidé) → **Lexique du prompt design** (direction artistique) → **Maquette** (choix de ce qu'on génère, prompts à copier dans Claude Design).
+
+- Accès : Supabase Auth par lien magique, uniquement pour l'email `ADMIN_EMAIL` (inscriptions Supabase à désactiver). Garde dans `middleware.ts` + `requireAdmin()` dans `app/outils/(prive)/layout.tsx` et dans chaque server action.
+- Données : tables `design_projects` et `prompt_history` (`supabase/schema.sql`), protégées par RLS (`owner_id = auth.uid()`), lues avec le client à session (`lib/auth/supabase-server.ts`), jamais avec la service role.
+- Contenu du Lexique : `data/outils/lexique.ts` (ajouter un exemple = ajouter une ligne). Modèles de projet : `data/outils/project-templates.ts`.
+- `/outils/lexique` (sans projet) garde son état dans le `localStorage`.
 
 ## 🎨 Design & Theme
 
@@ -212,6 +228,9 @@ RESEND_FROM_EMAIL=contact@felixautant.com
 # Better-Auth
 BETTER_AUTH_SECRET=your_secret_key_here
 BETTER_AUTH_URL=https://felixautant.com
+
+# Espace /outils : seul cet email peut se connecter (Supabase Auth, lien magique)
+ADMIN_EMAIL=your_email@example.com
 
 # Stripe (si nécessaire)
 STRIPE_SECRET_KEY=your_stripe_secret_key

@@ -1,6 +1,7 @@
 import createMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { locales, defaultLocale } from "./i18n/config";
+import { updateSession } from "./lib/auth/update-session";
 
 const intlMiddleware = createMiddleware({
   locales,
@@ -8,46 +9,28 @@ const intlMiddleware = createMiddleware({
   localePrefix: "as-needed",
 });
 
-// Espace privé /outils : protégé par HTTP Basic Auth.
-// Identifiants définis dans les variables d'environnement TOOLS_USER et TOOLS_PASSWORD ;
-// sans elles, l'accès est refusé à tout le monde.
-function isAuthorized(req: NextRequest): boolean {
-  const user = process.env.TOOLS_USER;
-  const password = process.env.TOOLS_PASSWORD;
-  if (!user || !password) return false;
+// Espace privé /outils : réservé à l'admin (Supabase Auth, email = ADMIN_EMAIL).
+const PUBLIC_TOOLS_PATHS = ["/outils/connexion", "/outils/auth/callback"];
 
-  const header = req.headers.get("authorization");
-  if (!header?.startsWith("Basic ")) return false;
-
-  try {
-    const [u, ...rest] = atob(header.slice(6)).split(":");
-    return u === user && rest.join(":") === password;
-  } catch {
-    return false;
-  }
-}
-
-function toolsMiddleware(req: NextRequest) {
-  if (!isAuthorized(req)) {
-    return new NextResponse("Accès réservé.", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="Outils", charset="UTF-8"',
-        "X-Robots-Tag": "noindex, nofollow",
-      },
-    });
-  }
-
-  // URLs propres : /outils → /outils/index.html, /outils/prompt-design → /outils/prompt-design.html
+async function toolsMiddleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  let res: NextResponse;
-  if (pathname === "/outils" || pathname === "/outils/") {
-    res = NextResponse.rewrite(new URL("/outils/index.html", req.url));
-  } else if (!pathname.split("/").pop()?.includes(".")) {
-    res = NextResponse.rewrite(new URL(`${pathname.replace(/\/$/, "")}.html`, req.url));
-  } else {
-    res = NextResponse.next();
+
+  // Anciennes URLs de la version statique
+  if (pathname === "/outils/prompt-design" || pathname === "/outils/prompt-design.html") {
+    return NextResponse.redirect(new URL("/outils/lexique", req.url), 308);
   }
+
+  const { res, isAdmin } = await updateSession(req);
+
+  if (!isAdmin && !PUBLIC_TOOLS_PATHS.includes(pathname.replace(/\/$/, ""))) {
+    const login = new URL("/outils/connexion", req.url);
+    if (pathname !== "/outils") login.searchParams.set("next", pathname);
+    const redirect = NextResponse.redirect(login);
+    res.cookies.getAll().forEach((c) => redirect.cookies.set(c));
+    redirect.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return redirect;
+  }
+
   res.headers.set("X-Robots-Tag", "noindex, nofollow");
   return res;
 }
@@ -60,5 +43,5 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)", "/outils/:path*"],
+  matcher: ["/((?!api|_next|_vercel|.*\..*).*)", "/outils/:path*"],
 };
