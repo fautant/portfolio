@@ -35,8 +35,8 @@ export function LexiqueProject({ projectId, projectName, initialState, initialTi
       stepKey={`lexique-prompt-design-v1-step-${projectId}`}
       brandSub={projectName}
       links={[
-        { href: `/outils/projets/${projectId}`, label: "← Projet" },
-        { href: `/outils/projets/${projectId}/maquettes`, label: "Maquette →" },
+        { href: `/outils/projets/${projectId}/contexte`, label: "← Contexte" },
+        { href: `/outils/projets/${projectId}/sections`, label: "Sections →" },
       ]}
       status={<SaveStatus status={status} />}
     />

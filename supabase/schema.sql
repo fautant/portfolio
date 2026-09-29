@@ -66,7 +66,7 @@ create table if not exists prompt_history (
   id uuid default gen_random_uuid() primary key,
   project_id uuid not null references design_projects on delete cascade,
   owner_id uuid not null default auth.uid() references auth.users on delete cascade,
-  kind text not null check (kind in ('lexique', 'maquette')),
+  kind text not null check (kind in ('lexique', 'maquette', 'kit', 'section', 'retouche', 'final')),
   label text,
   prompt text not null,
   created_at timestamptz default now() not null
@@ -101,3 +101,8 @@ create policy "Owner manages own prompt history"
   to authenticated
   using (owner_id = auth.uid())
   with check (owner_id = auth.uid());
+
+-- Migration (base existante) : nouveaux types de prompts du constructeur par sections
+alter table prompt_history drop constraint if exists prompt_history_kind_check;
+alter table prompt_history add constraint prompt_history_kind_check
+  check (kind in ('lexique', 'maquette', 'kit', 'section', 'retouche', 'final'));

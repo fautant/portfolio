@@ -16,6 +16,15 @@ export function Sidebar() {
   const cur = (href: string, exact = false) =>
     (exact ? pathname === href : pathname === href || pathname.startsWith(href + "/")) ? ({ "aria-current": "page" } as const) : {};
 
+  /** Étapes qui n'existent que dans un projet : désactivées hors projet */
+  const step = (name: string) => ({
+    className: projectId ? "" : "off",
+    "aria-disabled": !projectId,
+    tabIndex: projectId ? 0 : -1,
+    href: projectId ? `/outils/projets/${projectId}/${name}` : "/outils/projets",
+    ...(pathname.endsWith(`/${name}`) ? ({ "aria-current": "page" } as const) : {}),
+  });
+
   return (
     <aside className="o-side" aria-label="Navigation des outils">
       <Link className="o-brand" href="/outils">
@@ -42,23 +51,27 @@ export function Sidebar() {
           <ul className="o-nav">
             <li>
               <Link href={projectId ? `/outils/projets/${projectId}` : "/outils/projets"} {...cur(projectId ? `/outils/projets/${projectId}` : "/x", true)}>
-                <span>01</span>Projet
+                <span>01</span>Structure
+              </Link>
+            </li>
+            <li>
+              <Link {...step("contexte")}>
+                <span>02</span>Contexte
               </Link>
             </li>
             <li>
               <Link href={projectId ? `/outils/projets/${projectId}/lexique` : "/outils/lexique"} {...(pathname.endsWith("/lexique") ? ({ "aria-current": "page" } as const) : {})}>
-                <span>02</span>Lexique du prompt
+                <span>03</span>Lexique du prompt
               </Link>
             </li>
             <li>
-              <Link
-                className={projectId ? "" : "off"}
-                aria-disabled={!projectId}
-                tabIndex={projectId ? 0 : -1}
-                href={projectId ? `/outils/projets/${projectId}/maquettes` : "/outils/projets"}
-                {...(pathname.endsWith("/maquettes") ? ({ "aria-current": "page" } as const) : {})}
-              >
-                <span>03</span>Maquette
+              <Link {...step("sections")}>
+                <span>04</span>Sections
+              </Link>
+            </li>
+            <li>
+              <Link {...step("final")}>
+                <span>05</span>Prompt final
               </Link>
             </li>
           </ul>

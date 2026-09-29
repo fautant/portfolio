@@ -1,69 +1,90 @@
-import { TEMPLATES, newId, SITE_TYPE_LABELS } from "@/data/outils/project-templates";
-import type { Brief, ProjectPage, SiteType } from "@/lib/validations/design-project";
+import { describeFields, isFilled, visibleFields } from "@/data/outils/form-fields";
+import { defaultVariant, getSectionDef } from "@/data/outils/sections";
+import { SUPPORTS, newId } from "@/data/outils/supports";
+import type { Brief, ProjectPage, SectionInstance, SupportType } from "@/lib/validations/design-project";
 import { briefSchema } from "@/lib/validations/design-project";
 
 export function emptyBrief(): Brief {
   return briefSchema.parse({});
 }
 
-export function templatePages(siteType: SiteType): ProjectPage[] {
-  return TEMPLATES[siteType].pages.map((p) => ({
+/** Nouvelle section à partir du catalogue (`label` pour une section libre) */
+export function makeSection(key: string, label?: string): SectionInstance {
+  return { id: newId(), key, label: label ?? getSectionDef(key).label, variant: "", fields: {}, content: "", status: "todo" };
+}
+
+export function templatePages(type: SupportType): ProjectPage[] {
+  return SUPPORTS[type].pages.map((p) => ({
     id: newId(),
     name: p.name,
     goal: p.goal,
     priority: p.priority,
-    sections: [...p.sections],
+    sections: p.sections.map((k) => makeSection(k)),
     contentReady: "no",
     content: "",
   }));
 }
 
-/** Brief initial d'un projet : pages et fonctionnalités du modèle */
-export function briefFromTemplate(siteType: SiteType): Brief {
-  const t = TEMPLATES[siteType];
-  return { ...emptyBrief(), pages: templatePages(siteType), features: [...t.features] };
+/** Brief initial d'un projet : pages, sections et fonctionnalités du modèle du support */
+export function briefFromSupport(type: SupportType): Brief {
+  return { ...emptyBrief(), pages: templatePages(type), features: [...SUPPORTS[type].features] };
+}
+
+/** Variante réellement utilisée par une section (la première du catalogue par défaut) */
+export function effectiveVariant(s: SectionInstance): { k: string; label: string; desc: string } | null {
+  const def = getSectionDef(s.key);
+  const k = s.variant || defaultVariant(def);
+  return def.variants.find((v) => v.k === k) ?? null;
 }
 
 export interface CompletenessItem {
   id: string;
   label: string;
+  /** Étape où corriger : la structure ou le contexte */
+  step: "structure" | "contexte";
   block: string;
   done: boolean;
 }
 
-export function completenessItems(brief: Brief): CompletenessItem[] {
+export function completenessItems(brief: Brief, type: SupportType): CompletenessItem[] {
   const filled = (s: string) => s.trim().length > 0;
+  const support = SUPPORTS[type];
+  const required = visibleFields(support.contextFields, brief.context).filter((f) => f.required);
   return [
-    { id: "pitch", label: "Pitch en une phrase", block: "identite", done: filled(brief.pitch) },
-    { id: "sector", label: "Secteur / univers", block: "identite", done: filled(brief.sector) },
-    { id: "audience", label: "Au moins un persona", block: "objectif", done: brief.audience.some((a) => filled(a.name)) },
-    { id: "action", label: "Action principale du visiteur", block: "objectif", done: filled(brief.mainAction) },
-    { id: "emotion", label: "Émotion recherchée", block: "objectif", done: filled(brief.emotion) },
-    { id: "pages", label: "Au moins une page", block: "arborescence", done: brief.pages.length > 0 },
-    { id: "goals", label: "Un objectif pour chaque page", block: "arborescence", done: brief.pages.length > 0 && brief.pages.every((p) => filled(p.goal)) },
-    { id: "sections", label: "Des sections pour chaque page", block: "arborescence", done: brief.pages.length > 0 && brief.pages.every((p) => p.sections.length > 0) },
-    { id: "mvp", label: "Au moins une page MVP", block: "arborescence", done: brief.pages.some((p) => p.priority === "mvp") },
-    { id: "features", label: "Fonctionnalités choisies", block: "contenu", done: brief.features.length > 0 },
-    { id: "content", label: "Contenu réel disponible (au moins une page)", block: "contenu", done: brief.pages.some((p) => p.contentReady !== "no") },
-    { id: "lang", label: "Langues visées", block: "contraintes", done: filled(brief.constraints.languages) },
-    { id: "identity", label: "Identité existante (couleurs, polices ou références)", block: "identite-visuelle", done: filled(brief.identity.colors) || filled(brief.identity.fonts) || brief.identity.refs.some((r) => filled(r.url)) },
+    { id: "pitch", label: "Pitch en une phrase", step: "contexte", block: "identite", done: filled(brief.pitch) },
+    { id: "sector", label: "Secteur / univers", step: "contexte", block: "identite", done: filled(brief.sector) },
+    { id: "audience", label: "Au moins un persona", step: "contexte", block: "objectif", done: brief.audience.some((a) => filled(a.name)) },
+    { id: "action", label: "Action principale du lecteur", step: "contexte", block: "objectif", done: filled(brief.mainAction) },
+    { id: "emotion", label: "Émotion recherchée", step: "contexte", block: "objectif", done: filled(brief.emotion) },
+    ...required.map((f) => ({ id: `ctx-${f.id}`, label: f.label, step: "contexte" as const, block: "specifique", done: isFilled(brief.context[f.id]) })),
+    { id: "pages", label: `Au moins ${support.multiPage ? "une " + support.unit : "une page"}`, step: "structure", block: "structure", done: brief.pages.length > 0 },
+    { id: "goals", label: "Un objectif pour chaque page", step: "structure", block: "structure", done: brief.pages.length > 0 && brief.pages.every((p) => filled(p.goal)) },
+    { id: "sections", label: "Des sections pour chaque page", step: "structure", block: "structure", done: brief.pages.length > 0 && brief.pages.every((p) => p.sections.length > 0) },
+    { id: "lang", label: "Langues visées", step: "contexte", block: "contraintes", done: filled(brief.constraints.languages) },
+    { id: "identity", label: "Identité existante (couleurs, polices ou références)", step: "contexte", block: "identite-visuelle", done: filled(brief.identity.colors) || filled(brief.identity.fonts) || brief.identity.refs.some((r) => filled(r.url)) },
   ];
 }
 
-export function completenessPct(brief: Brief): number {
-  const items = completenessItems(brief);
+export function completenessPct(brief: Brief, type: SupportType): number {
+  const items = completenessItems(brief, type);
   return Math.round((items.filter((i) => i.done).length / items.length) * 100);
 }
 
+/** Avancement de la génération : sections validées / total */
+export function sectionProgress(brief: Brief): { ok: number; copied: number; total: number } {
+  const all = brief.pages.flatMap((p) => p.sections);
+  return { ok: all.filter((s) => s.status === "ok").length, copied: all.filter((s) => s.status === "copied" || s.status === "retouch").length, total: all.length };
+}
+
 const PRIORITY_LABEL = { mvp: "MVP", later: "Plus tard" } as const;
-const CONTENT_LABEL = { yes: "contenu prêt", partial: "contenu partiel", no: "contenu à écrire" } as const;
 const A11Y_LABEL = { basic: "de base", aa: "WCAG AA", aaa: "WCAG AAA" } as const;
 const DEVICE_LABEL = { mobile: "mobile d'abord", desktop: "desktop d'abord", both: "mobile et desktop à égalité" } as const;
 
-/** Brief condensé, réutilisé dans le prompt de maquette (bloc [PROJET]) */
-export function briefSummary(name: string, siteType: SiteType, brief: Brief): string {
+/** Brief condensé, réutilisé dans chaque prompt (bloc [PROJET]) */
+export function briefSummary(name: string, type: SupportType, brief: Brief): string {
+  const support = SUPPORTS[type];
   const lines: string[] = [];
-  lines.push(`Nom : ${name} (${SITE_TYPE_LABELS[siteType].toLowerCase()})`);
+  lines.push(`Nom : ${name} (${support.label.toLowerCase()})`);
   if (brief.pitch.trim()) lines.push(`Pitch : ${brief.pitch.trim()}`);
   if (brief.sector.trim()) lines.push(`Secteur : ${brief.sector.trim()}`);
   const personas = brief.audience.filter((a) => a.name.trim());
@@ -71,8 +92,9 @@ export function briefSummary(name: string, siteType: SiteType, brief: Brief): st
   if (brief.mainAction.trim()) lines.push(`Action principale : ${brief.mainAction.trim()}`);
   if (brief.emotion.trim()) lines.push(`Émotion recherchée : ${brief.emotion.trim()}`);
   if (brief.kpis.trim()) lines.push(`Critères de réussite : ${brief.kpis.trim()}`);
+  lines.push(...describeFields(support.contextFields, brief.context));
   const c = brief.constraints;
-  const cons = [DEVICE_LABEL[c.priority], `accessibilité ${A11Y_LABEL[c.a11y]}`, c.languages.trim() && `langues : ${c.languages.trim()}`].filter(Boolean);
+  const cons = [support.family === "web" && DEVICE_LABEL[c.priority], `accessibilité ${A11Y_LABEL[c.a11y]}`, c.languages.trim() && `langues : ${c.languages.trim()}`].filter(Boolean);
   lines.push(`Contraintes : ${cons.join(", ")}`);
   const idt: string[] = [];
   if (brief.identity.colors.trim()) idt.push(`couleurs imposées : ${brief.identity.colors.trim()}`);
@@ -83,8 +105,9 @@ export function briefSummary(name: string, siteType: SiteType, brief: Brief): st
 }
 
 /** Brief Markdown complet, copiable */
-export function briefMarkdown(name: string, siteType: SiteType, brief: Brief): string {
-  const out: string[] = [`# ${name}`, "", `_${SITE_TYPE_LABELS[siteType]}_`, ""];
+export function briefMarkdown(name: string, type: SupportType, brief: Brief): string {
+  const support = SUPPORTS[type];
+  const out: string[] = [`# ${name}`, "", `_${support.label}_`, ""];
   const sec = (title: string, body: string[]) => {
     const b = body.filter((l) => l !== "");
     if (b.length) out.push(`## ${title}`, "", ...b, "");
@@ -96,21 +119,23 @@ export function briefMarkdown(name: string, siteType: SiteType, brief: Brief): s
     brief.emotion.trim() ? `**Émotion recherchée :** ${brief.emotion.trim()}` : "",
     brief.kpis.trim() ? `**Critères de réussite :** ${brief.kpis.trim()}` : "",
   ]);
+  sec("Contexte", describeFields(support.contextFields, brief.context).map((l) => `- ${l}`));
   if (brief.pages.length) {
-    out.push("## Arborescence", "");
+    out.push("## Structure", "");
     brief.pages.forEach((p, i) => {
       out.push(`### ${i + 1}. ${p.name || "Sans titre"} — ${PRIORITY_LABEL[p.priority]}`);
       if (p.goal.trim()) out.push(`Objectif : ${p.goal.trim()}`);
-      if (p.sections.length) out.push(`Sections : ${p.sections.join(" → ")}`);
-      out.push(`Contenu : ${CONTENT_LABEL[p.contentReady]}`);
-      if (p.content.trim()) out.push("", p.content.trim());
+      p.sections.forEach((s, k) => {
+        const v = effectiveVariant(s);
+        out.push(`${k + 1}. ${s.label}${v ? ` (${v.label})` : ""}`);
+      });
       out.push("");
     });
   }
-  sec("Fonctionnalités", brief.features.map((f) => `- ${f}`));
+  if (support.family === "web") sec("Fonctionnalités", brief.features.map((f) => `- ${f}`));
   const c = brief.constraints;
   sec("Contraintes", [
-    `- Appareil : ${DEVICE_LABEL[c.priority]}`,
+    support.family === "web" ? `- Appareil : ${DEVICE_LABEL[c.priority]}` : "",
     `- Accessibilité : ${A11Y_LABEL[c.a11y]}`,
     c.languages.trim() ? `- Langues : ${c.languages.trim()}` : "",
     c.tech.trim() ? `- Techno cible : ${c.tech.trim()}` : "",
