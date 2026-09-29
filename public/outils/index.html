@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Mes outils</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F2EA;--surface:#FFFDF8;--surface-2:#ECE7DA;--ink:#1A1813;--ink-2:#5E594D;--ink-3:#8C8676;--line:#DBD4C3;--accent:#D8431F;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#131210;--surface:#1B1A17;--surface-2:#25231E;--ink:#EEEAE0;--ink-2:#A8A294;--ink-3:#7A7466;--line:#34312A;--accent:#FF6A3D;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#131210;--surface:#1B1A17;--surface-2:#25231E;--ink:#EEEAE0;--ink-2:#A8A294;--ink-3:#7A7466;--line:#34312A;--accent:#FF6A3D;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+main{max-width:960px;margin:0 auto;padding:64px 16px 80px}
+.tag{font:12px 'JetBrains Mono',monospace;color:var(--ink-3);letter-spacing:.04em}
+h1{font:400 clamp(44px,7vw,80px)/.95 'Instrument Serif',Georgia,serif;letter-spacing:-.02em;margin:8px 0 14px}
+h1 em{color:var(--accent)}
+.lead{font-size:17px;color:var(--ink-2);max-width:60ch;margin:0 0 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.card{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 12px 30px -16px rgba(0,0,0,.3)}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.card .n{font:11px 'JetBrains Mono',monospace;color:var(--accent)}
+.card h2{font:400 30px/1 'Instrument Serif',Georgia,serif;margin:0}
+.card p{margin:0;font-size:14.5px;color:var(--ink-2);flex:1}
+.card .go{font-size:13.5px;font-weight:500}
+.card.soon{border-style:dashed;background:transparent;pointer-events:none}
+.card.soon h2{color:var(--ink-3)}
+footer{margin-top:48px;font-size:13px;color:var(--ink-3)}
+footer a{color:inherit}
+</style>
+</head>
+<body>
+<main>
+  <span class="tag">[ESPACE PRIVÉ]</span>
+  <h1>Mes <em>outils</em></h1>
+  <p class="lead">Les outils que j’utilise au quotidien pour concevoir et prompter. Cette page n’est pas référencée et nécessite un mot de passe.</p>
+  <div class="grid">
+    <a class="card" href="/outils/prompt-design">
+      <span class="n">01</span>
+      <h2>Lexique du prompt design</h2>
+      <p>Les 14 paramètres à donner à une IA pour concevoir une interface, avec exemples visuels, règles de cohérence et constructeur de prompt pas à pas.</p>
+      <span class="go">Ouvrir →</span>
+    </a>
+    <div class="card soon" aria-hidden="true">
+      <span class="n">02</span>
+      <h2>Prochain outil</h2>
+      <p>Pour en ajouter un : dépose un fichier .html dans public/outils/ et ajoute une carte ici.</p>
+    </div>
+  </div>
+  <footer><a href="/">← Retour au portfolio</a></footer>
+</main>
+</body>
+</html>

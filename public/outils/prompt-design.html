@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lexique du prompt design</title>
+<meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Les paramètres à donner à une IA pour concevoir une interface ou un portfolio, avec des exemples visuels et un constructeur de prompt.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,6 +54,8 @@ a{color:inherit}
 .nav a:hover{background:var(--surface-2);color:var(--ink)}
 .nav a.active{background:var(--ink);color:var(--bg)}
 .nav a.active span{color:var(--bg);opacity:.7}
+.home-link{display:inline-block;margin:-10px 0 18px;font-size:12.5px;color:var(--ink-2);text-decoration:none}
+.home-link:hover{color:var(--accent)}
 .theme-btn{margin-top:22px;width:100%;border:1px solid var(--line);background:transparent;border-radius:8px;padding:7px 10px;font-size:13px;color:var(--ink-2);text-align:left}
 .theme-btn:hover{border-color:var(--ink-3);color:var(--ink)}
 main{padding:48px clamp(20px,4vw,56px) 120px;min-width:0}
@@ -607,6 +610,7 @@ body:has(.confirm.show) .fab{opacity:0;pointer-events:none}
   <nav class="nav" aria-label="Sommaire">
     <p class="brand">Lexique du prompt design</p>
     <p class="brand-sub">14 paramètres pour briefer une IA</p>
+    <a class="home-link" id="homelink" href="/outils" hidden>← Mes outils</a>
     <div class="prog" aria-live="polite"><span id="progtxt">0/14 étapes validées</span><i><b id="progbar"></b></i></div>
     <ol id="navlist"></ol>
     <button class="theme-btn" id="themeBtn" type="button">◐ Thème</button>
@@ -1529,6 +1533,7 @@ const INIT = {
 document.querySelectorAll('[data-demo]').forEach(el=>{const f=INIT[el.dataset.demo]; if(f) f(el)});
 document.querySelectorAll('[data-replay]').forEach(d=>d.addEventListener('mouseenter',()=>{d.classList.remove('in'); void d.offsetWidth; d.classList.add('in')}));
 
+if(location.pathname.startsWith('/outils')) document.getElementById('homelink').hidden=false;
 render();
 /* Étape de départ : #etape-n dans l'adresse, sinon la dernière étape visitée */
 (function(){let n=0; const m=/etape-(\d+)/.exec(location.hash||'');
