@@ -198,7 +198,7 @@ pnpm format:check     # Check formatting without changes
 
 ```env
 # Next.js
-NEXT_PUBLIC_SITE_URL=https://felixautant.dev
+NEXT_PUBLIC_SITE_URL=https://felixautant.com
 
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -207,11 +207,11 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 # Resend (Email)
 RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=contact@felixautant.dev
+RESEND_FROM_EMAIL=contact@felixautant.com
 
 # Better-Auth
 BETTER_AUTH_SECRET=your_secret_key_here
-BETTER_AUTH_URL=https://felixautant.dev
+BETTER_AUTH_URL=https://felixautant.com
 
 # Stripe (si nécessaire)
 STRIPE_SECRET_KEY=your_stripe_secret_key
@@ -361,7 +361,7 @@ export const metadata = {
     openGraph: {
         title: 'Félix AUTANT - Développeur Web Fullstack',
         description: 'Portfolio et projets de développement web',
-        url: 'https://felixautant.dev',
+        url: 'https://felixautant.com',
         siteName: 'Portfolio Félix AUTANT',
         images: [{ url: '/og-image.png' }],
         locale: 'fr_FR',

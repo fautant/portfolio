@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://felixautant.dev/sitemap.xml",
+    sitemap: "https://felixautant.com/sitemap.xml",
   };
 }

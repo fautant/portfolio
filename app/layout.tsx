@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Félix AUTANT - Développeur Web Fullstack",
     description: "Portfolio et projets de développement web",
-    url: "https://felixautant.dev",
+    url: "https://felixautant.com",
     siteName: "Portfolio Félix AUTANT",
     locale: "fr_FR",
     type: "website",

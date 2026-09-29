@@ -4,7 +4,7 @@ export function JsonLd() {
     "@type": "Person",
     name: "Félix AUTANT",
     jobTitle: "Développeur Web Fullstack",
-    url: "https://felixautant.dev",
+    url: "https://felixautant.com",
     email: "autantfelix@gmail.com",
     telephone: "+33602279283",
     address: {
@@ -32,7 +32,7 @@ export function JsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Portfolio Félix AUTANT",
-    url: "https://felixautant.dev",
+    url: "https://felixautant.com",
     author: {
       "@type": "Person",
       name: "Félix AUTANT",
