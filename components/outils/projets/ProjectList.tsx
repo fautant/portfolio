@@ -4,20 +4,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { createProject, deleteProject, duplicateProject, importProject } from "@/app/outils/(prive)/actions";
-import { SUPPORTS, SUPPORT_LABELS } from "@/data/outils/supports";
-import { SUPPORT_TYPES, type SupportType } from "@/lib/validations/design-project";
+import { SITE_TYPE_LABELS } from "@/data/outils/project-templates";
+import { SITE_TYPES, type SiteType } from "@/lib/validations/design-project";
 
 export interface ProjectSummary {
   id: string;
   name: string;
-  siteType: SupportType;
+  siteType: SiteType;
   updatedAt: string;
   briefPct: number;
   lexiqueDone: number;
   lexiqueTotal: number;
-  sectionsOk: number;
-  sectionsCopied: number;
-  sectionsTotal: number;
+  maquettePrompts: number;
   /** Données complètes pour l'export JSON */
   exportData: unknown;
 }
@@ -70,12 +68,12 @@ export function ProjectRows({ projects, compact }: { projects: ProjectSummary[];
                 <Link href={`/outils/projets/${p.id}`}>{p.name}</Link>
               </h3>
               <small>
-                {SUPPORT_LABELS[p.siteType]} · modifié le {fmt(p.updatedAt)}
+                {SITE_TYPE_LABELS[p.siteType]} · modifié le {fmt(p.updatedAt)}
               </small>
               <div className="o-prog-list" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>
-                <ProgressBar label={`Contexte ${p.briefPct} %`} value={p.briefPct} />
+                <ProgressBar label={`Projet ${p.briefPct} %`} value={p.briefPct} />
                 <ProgressBar label={`Lexique ${p.lexiqueDone}/${p.lexiqueTotal}`} value={(p.lexiqueDone / p.lexiqueTotal) * 100} />
-                <ProgressBar label={`Sections : ${p.sectionsOk}/${p.sectionsTotal} validée${p.sectionsOk > 1 ? "s" : ""}`} value={p.sectionsTotal ? ((p.sectionsOk + p.sectionsCopied / 2) / p.sectionsTotal) * 100 : 0} />
+                <ProgressBar label={`Maquettes : ${p.maquettePrompts} prompt${p.maquettePrompts > 1 ? "s" : ""}`} value={Math.min(100, p.maquettePrompts * 25)} />
               </div>
             </div>
             <div className="o-row">
@@ -111,7 +109,7 @@ export function ProjectRows({ projects, compact }: { projects: ProjectSummary[];
 export function NewProjectForm() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [siteType, setSiteType] = useState<SupportType>("portfolio-dev");
+  const [siteType, setSiteType] = useState<SiteType>("portfolio-dev");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -148,23 +146,16 @@ export function NewProjectForm() {
         <span>Nom du projet</span>
         <input value={name} maxLength={120} required onChange={(e) => setName(e.target.value)} placeholder="Ex. : Portfolio 2026" />
       </label>
-      {(["web", "print"] as const).map((family) => (
-        <fieldset key={family} className="np-group">
-          <legend className="pj-label">{family === "web" ? "Site ou application" : "Document imprimable"}</legend>
-          <div className="mq-scopes" role="radiogroup" aria-label={family === "web" ? "Supports web" : "Supports imprimables"}>
-            {SUPPORT_TYPES.filter((t) => SUPPORTS[t].family === family).map((t) => (
-              <label key={t} className={`mq-scope ${siteType === t ? "on" : ""}`}>
-                <input type="radio" name="support" checked={siteType === t} onChange={() => setSiteType(t)} />
-                <b>{SUPPORTS[t].label}</b>
-                <small>{SUPPORTS[t].description}</small>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      ))}
-      <p className="pj-note">
-        Sections proposées : {SUPPORTS[siteType].pages.flatMap((p) => p.sections).filter((k, i, a) => a.indexOf(k) === i).length} — tu pourras en ajouter, retirer et réordonner à l’étape suivante.
-      </p>
+      <label className="o-field">
+        <span>Type de site</span>
+        <select value={siteType} onChange={(e) => setSiteType(e.target.value as SiteType)}>
+          {SITE_TYPES.map((t) => (
+            <option key={t} value={t}>
+              {SITE_TYPE_LABELS[t]}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="o-row" style={{ alignItems: "flex-end", marginBottom: 14 }}>
         <button className="o-btn primary" type="submit" disabled={pending || !name.trim()}>
           Créer le projet

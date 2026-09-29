@@ -69,17 +69,17 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
     /newsletter       # Endpoint inscription newsletter (optionnel)
   /outils             # Espace privé (noindex, connexion admin) — hors [locale]
     /connexion        # Lien magique Supabase Auth, réservé à ADMIN_EMAIL
-    /(prive)/(shell)  # Tableau de bord, projets, étapes Structure / Contexte / Sections / Final (avec barre latérale)
+    /(prive)/(shell)  # Tableau de bord, projets, outils Projet et Maquette (avec barre latérale)
     /(prive)/(plein)  # Lexique du prompt design (pleine largeur)
 /components
-  /outils             # Composants des outils design (structure, contexte, lexique, sections, final)
+  /outils             # Composants des outils design (lexique, projet, maquette)
   /sections           # Sections réutilisables (Hero, Skills, Projects)
   /ui                 # Composants shadcn/ui
   /forms              # Formulaires (Contact, Proposal)
   /animations         # Composants animés (Framer Motion)
 /lib
   /auth              # Clients Supabase avec session (server / browser), requireAdmin
-  /outils            # Logique pure des outils design (lexique, project, prompts)
+  /outils            # Logique pure des outils design (lexique, project, maquette)
   /supabase          # Client Supabase
   /resend            # Client Resend
   /better-auth       # Configuration Better-Auth
@@ -95,13 +95,12 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
 
 ## 🧰 Espace /outils (privé)
 
-Outil **Design** en 5 étapes, construit **section par section** autour d'un même projet : **Structure** (choix du support — site, app, CV, lettre, carte de visite, flyer — puis de ses pages/sections et de leur variante de mise en page) → **Contexte** (formulaire qui s'adapte au support et aux sections) → **Lexique du prompt design** (direction artistique) → **Sections** (un prompt par section à coller dans Claude Design, statut et retouches) → **Final** (prompt d'assemblage + brief Markdown).
+Outils de la catégorie **Design**, chaînés autour d'un même projet : **Projet** (brief guidé) → **Lexique du prompt design** (direction artistique) → **Maquette** (choix de ce qu'on génère, prompts à copier dans Claude Design).
 
 - Accès : Supabase Auth par lien magique, uniquement pour l'email `ADMIN_EMAIL` (inscriptions Supabase à désactiver). Garde dans `middleware.ts` + `requireAdmin()` dans `app/outils/(prive)/layout.tsx` et dans chaque server action.
-- Données : tables `design_projects` (colonnes jsonb `brief`, `lexique`, `maquettes` = réglages de génération) et `prompt_history` (`supabase/schema.sql`), protégées par RLS (`owner_id = auth.uid()`), lues avec le client à session (`lib/auth/supabase-server.ts`), jamais avec la service role. Après mise à jour, exécuter le bloc « Migration » de `schema.sql` (nouveaux `kind` de prompts).
-- Catalogues pilotés par la donnée : `data/outils/supports.ts` (supports, pages types, champs de contexte, formats, règles d'impression), `data/outils/sections.ts` (sections, variantes, champs, critères de qualité), `data/outils/form-fields.ts` (types de champs, `showIf`). Ajouter un support ou une section = ajouter un objet. Lexique : `data/outils/lexique.ts`.
-- Logique pure : `lib/outils/prompts.ts` (kit, section, retouche, assemblage), `lib/outils/project.ts` (complétude, résumé, Markdown). Les anciens projets (sections = liste de libellés) sont migrés à la lecture par `pageSchema` (`lib/validations/design-project.ts`).
-- `/outils/projets/[id]/maquettes` redirige vers `/sections`. `/outils/lexique` (sans projet) garde son état dans le `localStorage`.
+- Données : tables `design_projects` et `prompt_history` (`supabase/schema.sql`), protégées par RLS (`owner_id = auth.uid()`), lues avec le client à session (`lib/auth/supabase-server.ts`), jamais avec la service role.
+- Contenu du Lexique : `data/outils/lexique.ts` (ajouter un exemple = ajouter une ligne). Modèles de projet : `data/outils/project-templates.ts`.
+- `/outils/lexique` (sans projet) garde son état dans le `localStorage`.
 
 ## 🎨 Design & Theme
 

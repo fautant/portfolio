@@ -4,16 +4,15 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
 import { createSupabaseServerClient } from "@/lib/auth/supabase-server";
-import { briefFromSupport } from "@/lib/outils/project";
+import { briefFromTemplate } from "@/lib/outils/project";
 import {
   briefSchema,
-  buildSchema,
   createProjectSchema,
   lexiqueSchema,
+  maquettesSchema,
   projectPartSchema,
   savePromptSchema,
   toProject,
-  type Brief,
   type Project,
   type ProjectRow,
   type PromptHistoryRow,
@@ -29,11 +28,6 @@ export interface ActionResult<T = undefined> {
   ok: boolean;
   error?: string;
   data?: T;
-}
-
-/** Une copie ou un import repart de zéro pour la génération : toutes les sections redeviennent « à faire » */
-function resetStatuses(brief: Brief): Brief {
-  return { ...brief, pages: brief.pages.map((p) => ({ ...p, sections: p.sections.map((s) => ({ ...s, status: "todo" as const })) })) };
 }
 
 async function db() {
@@ -72,7 +66,7 @@ export async function createProject(input: { name: string; siteType: string }): 
     .insert({
       name: parsed.data.name,
       site_type: parsed.data.siteType,
-      brief: briefFromSupport(parsed.data.siteType),
+      brief: briefFromTemplate(parsed.data.siteType),
     })
     .select("id")
     .single();
@@ -111,9 +105,9 @@ export async function duplicateProject(id: string): Promise<ActionResult<{ id: s
     .insert({
       name: `${source.name} (copie)`.slice(0, 120),
       site_type: source.siteType,
-      brief: resetStatuses(source.brief),
+      brief: source.brief,
       lexique: source.lexique,
-      maquettes: { ...source.build, kitStatus: "todo" },
+      maquettes: { ...source.maquettes, done: [] },
     })
     .select("id")
     .single();
@@ -131,9 +125,9 @@ export async function importProject(input: unknown): Promise<ActionResult<{ id: 
     .insert({
       name: parsed.data.name,
       site_type: parsed.data.siteType,
-      brief: resetStatuses(briefSchema.parse(parsed.data.brief ?? {})),
+      brief: briefSchema.parse(parsed.data.brief ?? {}),
       lexique: lexiqueSchema.parse(parsed.data.lexique ?? {}),
-      maquettes: { ...buildSchema.parse(parsed.data.maquettes ?? {}), kitStatus: "todo" },
+      maquettes: { ...maquettesSchema.parse(parsed.data.maquettes ?? {}), done: [] },
     })
     .select("id")
     .single();
@@ -154,7 +148,7 @@ export async function deleteProject(id: string): Promise<ActionResult> {
 export async function saveProjectPart(id: string, part: string, data: unknown): Promise<ActionResult> {
   const p = projectPartSchema.safeParse(part);
   if (!p.success) return { ok: false, error: "Partie inconnue" };
-  const schema = { brief: briefSchema, lexique: lexiqueSchema, maquettes: buildSchema }[p.data];
+  const schema = { brief: briefSchema, lexique: lexiqueSchema, maquettes: maquettesSchema }[p.data];
   const value = schema.parse(data);
   const supabase = await db();
   const { error } = await supabase.from("design_projects").update({ [p.data]: value }).eq("id", id);
@@ -186,4 +180,14 @@ export async function listPrompts(projectId: string): Promise<PromptHistoryRow[]
     .limit(100);
   if (error) return [];
   return data as PromptHistoryRow[];
+}
+
+export async function countPrompts(): Promise<Record<string, number>> {
+  const supabase = await db();
+  const { data } = await supabase.from("prompt_history").select("project_id").eq("kind", "maquette");
+  const counts: Record<string, number> = {};
+  (data as { project_id: string }[] | null)?.forEach((r) => {
+    counts[r.project_id] = (counts[r.project_id] ?? 0) + 1;
+  });
+  return counts;
 }
