@@ -69,7 +69,7 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
     /newsletter       # Endpoint inscription newsletter (optionnel)
   /outils             # Espace privé (noindex, connexion admin) — hors [locale]
     /connexion        # Lien magique Supabase Auth, réservé à ADMIN_EMAIL
-    /(prive)/(shell)  # Tableau de bord, projets, outils Projet et Maquette (avec barre latérale)
+    /(prive)/(shell)  # Tableau de bord (avec barre latérale)
     /(prive)/(plein)  # Lexique du prompt design (pleine largeur)
 /components
   /outils             # Composants des outils design (lexique, projet, maquette)
@@ -95,12 +95,11 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
 
 ## 🧰 Espace /outils (privé)
 
-Outils de la catégorie **Design**, chaînés autour d'un même projet : **Projet** (brief guidé) → **Lexique du prompt design** (direction artistique) → **Maquette** (choix de ce qu'on génère, prompts à copier dans Claude Design).
+Espace privé contenant pour l'instant un seul outil : le **Lexique du prompt design** (`/outils/lexique`). Lien « Connexion » dans la Navbar du portfolio.
 
-- Accès : Supabase Auth par lien magique, uniquement pour l'email `ADMIN_EMAIL` (inscriptions Supabase à désactiver). Garde dans `middleware.ts` + `requireAdmin()` dans `app/outils/(prive)/layout.tsx` et dans chaque server action.
-- Données : tables `design_projects` et `prompt_history` (`supabase/schema.sql`), protégées par RLS (`owner_id = auth.uid()`), lues avec le client à session (`lib/auth/supabase-server.ts`), jamais avec la service role.
-- Contenu du Lexique : `data/outils/lexique.ts` (ajouter un exemple = ajouter une ligne). Modèles de projet : `data/outils/project-templates.ts`.
-- `/outils/lexique` (sans projet) garde son état dans le `localStorage`.
+- Accès : Supabase Auth par lien magique, uniquement pour l'email `ADMIN_EMAIL` (inscriptions Supabase à désactiver). Garde dans `middleware.ts` + `requireAdmin()` dans `app/outils/(prive)/layout.tsx`.
+- Contenu du Lexique : `data/outils/lexique.ts` (ajouter un exemple = ajouter une ligne). L'état est gardé dans le `localStorage`.
+- Les outils Projet et Maquette (tables `design_projects` / `prompt_history`) ont été retirés.
 
 ## 🎨 Design & Theme
 

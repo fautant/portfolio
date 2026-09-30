@@ -40,10 +40,7 @@ export function LexiqueFree() {
       onChange={onChange}
       stepKey={STORAGE_KEY + "-step"}
       brandSub="Mode libre : enregistré dans ce navigateur"
-      links={[
-        { href: "/outils", label: "← Mes outils" },
-        { href: "/outils/projets", label: "Rattacher à un projet →" },
-      ]}
+      links={[{ href: "/outils", label: "← Mes outils" }]}
     />
   );
 }
