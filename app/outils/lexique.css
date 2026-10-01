@@ -77,10 +77,10 @@
 .outils-root .lex .ex-add::before{content:"+"}
 .outils-root .lex .ex.on .ex-add{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .outils-root .lex .ex.on .ex-add::before{content:"✓";font-size:12px}
-.outils-root .lex .avoid .ex-l::before{content:"✕ ";color:var(--accent)}
+
 .outils-root .lex .ex.blocked{opacity:.5}
 .outils-root .lex .ex.blocked:hover{opacity:.9}
-.outils-root .lex .ex-flag{grid-column:1/-1;display:none;font-family:var(--mono);font-size:11px;line-height:1.4;margin-top:6px;padding:4px 7px;border-radius:5px}
+.outils-root .lex .ex-flag{grid-column:1/-1;font-family:var(--mono);font-size:11px;line-height:1.4;margin-top:6px;padding:4px 7px;border-radius:5px}
 .outils-root .lex .ex-flag.hard{display:block;color:var(--accent);background:var(--accent-soft)}
 .outils-root .lex .ex-flag.warn{display:block;color:var(--warn);background:var(--warn-soft)}
 .outils-root .lex .ex-flag.rep{display:block;color:var(--ink-3);background:var(--surface-2)}
@@ -566,3 +566,196 @@
 /* Rétablit les puces neutralisées par le reset Tailwind du portfolio */
 .outils-root .lex .meta ul,.outils-root .lex .coh ul{list-style:disc}
 .outils-root .lex blockquote{quotes:none}
+
+/* =========================================================
+   LEXIQUE v2 : nav groupée, étape Type, briques et plateaux,
+   étape Élément, boucle Claude Design, liens de flag
+   ========================================================= */
+.outils-root .lex .steps.four{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.outils-root .lex .nav-group{display:block;font:400 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:18px 8px 6px}
+.outils-root .lex .nav-empty{font-size:12.5px;color:var(--ink-3);margin:0 8px}
+.outils-root .lex .nav-page{margin-bottom:8px}
+.outils-root .lex .nav-page-name{display:block;font:11px var(--mono);color:var(--ink-3);margin:4px 8px 2px}
+.outils-root .lex .nav a.nav-el{align-items:center}
+.outils-root .lex .nav-el .sq{width:10px;height:10px;border-radius:2px;flex:none}
+.outils-root .lex .nav a.nav-el .mk{margin-left:auto;font:700 10.5px var(--mono);color:var(--ok);min-width:0}
+.outils-root .lex .nav a.nav-el.active .mk{color:var(--bg)}
+.outils-root .lex .flag-go,.outils-root .lex .coh-go{border:0;background:transparent;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
+.outils-root .lex .coh-go{font-size:12px;margin-left:6px}
+.outils-root .lex .b-sub{margin:0;font-size:12.5px;color:var(--ink-3)}
+.outils-root .lex .chip.plain{padding:3px 10px}
+.outils-root .lex .ex-pre{color:var(--accent)}
+.outils-root .lex .ex-sm .ex-l{font-size:13.5px}
+.outils-root .lex .ex-sm .ex-p{font-size:12px}
+.outils-root .lex .ex-flag{display:block;margin:-4px 14px 12px}
+.outils-root .lex .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface)}
+.outils-root .lex .seg button{border:0;border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap;background:transparent;color:var(--ink-2)}
+.outils-root .lex .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.outils-root .lex .sub-head{display:flex;align-items:baseline;gap:10px;margin:0 0 10px;flex-wrap:wrap}
+.outils-root .lex .sub-head>b{font:400 26px/1 var(--serif)}
+.outils-root .lex .sub-head .seg{margin-left:auto}
+.outils-root .lex .sub-lead{font-size:13.5px;color:var(--ink-3);margin:0 0 14px;max-width:70ch}
+.outils-root .lex .tg-hint{font-size:13px;color:var(--ink-3)}
+
+/* Étape Type */
+.outils-root .lex .tgs{display:grid;gap:28px}
+.outils-root .lex .tg-head{display:flex;align-items:baseline;gap:10px;margin:0 0 10px;flex-wrap:wrap}
+.outils-root .lex .tg-head>b{font:400 26px/1 var(--serif)}
+.outils-root .lex .tg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.outils-root .lex .tg-opt{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line);cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.outils-root .lex .tg-opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.outils-root .lex .tg-opt.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.outils-root .lex .tg-opt.soon{border-style:dashed;opacity:.55;cursor:not-allowed}
+.outils-root .lex .tg-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.outils-root .lex .tg-top b{font-size:14.5px}
+.outils-root .lex .tg-badge{font:10.5px var(--mono);padding:2px 8px;border-radius:999px;white-space:nowrap;background:var(--surface-2);color:var(--ink-3)}
+.outils-root .lex .tg-opt.on .tg-badge{background:var(--accent);color:var(--on-accent)}
+.outils-root .lex .tg-d{font-size:13px;color:var(--ink-2);line-height:1.45}
+
+/* Structure */
+.outils-root .lex .st-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 22px}
+.outils-root .lex .st-alerts{border-radius:10px;padding:10px 14px;margin:0 0 20px;background:var(--warn-soft);color:var(--warn);font-size:13.5px;display:flex;flex-direction:column;gap:4px}
+.outils-root .lex .st-wrap{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.outils-root .lex .bin{flex:0 0 250px;position:sticky;top:24px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.outils-root .lex .bin h3{font:400 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:0 0 4px}
+.outils-root .lex .bin>p{font-size:12.5px;color:var(--ink-3);margin:0 0 12px}
+.outils-root .lex .bin-cat{margin-bottom:12px;display:flex;flex-direction:column;gap:4px}
+.outils-root .lex .bin-cat>b{font:400 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.outils-root .lex .lib-brick{all:unset;box-sizing:border-box;position:relative;margin-top:6px;color:#fff;border-radius:4px;padding:8px 10px;cursor:grab;display:flex;justify-content:space-between;align-items:center;transition:transform .15s;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.25);background:var(--c)}
+.outils-root .lex .lib-brick:hover{transform:translateY(-2px)}
+.outils-root .lex .lib-brick:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.outils-root .lex .lib-brick span{font-weight:600;font-size:13.5px}
+.outils-root .lex .lib-brick small{font:10.5px var(--mono);opacity:.85}
+.outils-root .lex .lib-brick .studs{position:absolute;left:8px;top:-5px;display:flex;gap:6px}
+.outils-root .lex .lib-brick .studs u{display:block;width:14px;height:5px;border-radius:3px 3px 0 0;background:var(--c);text-decoration:none}
+.outils-root .lex .plates{flex:1 1 300px;min-width:0;display:flex;flex-wrap:wrap;gap:28px 24px;align-items:flex-start}
+.outils-root .lex .plate{width:320px;display:flex;flex-direction:column;gap:10px;cursor:pointer}
+.outils-root .lex .plate.v-plaque,.outils-root .lex .plate-add.v-plaque{width:300px}
+.outils-root .lex .plate-head{display:flex;align-items:center;gap:8px}
+.outils-root .lex .plate-head .dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--line)}
+.outils-root .lex .plate-head .dot.on{background:var(--accent)}
+.outils-root .lex .plate-head input,.outils-root .lex .plate-name{flex:1;min-width:0;background:transparent;border:0;font:400 22px/1.1 var(--serif);padding:2px 0}
+.outils-root .lex .plate-head input{border-bottom:1px dashed var(--line)}
+.outils-root .lex .plate-head input:focus{outline:none;border-bottom-color:var(--accent)}
+.outils-root .lex .plate-count{font:11px var(--mono);color:var(--ink-3)}
+.outils-root .lex .plate-x{border:0;background:var(--surface-2);width:22px;height:22px;border-radius:50%;font-size:11px;line-height:1;padding:0;color:var(--ink-2)}
+.outils-root .lex .plate-x:hover{background:var(--accent);color:var(--on-accent)}
+.outils-root .lex .plate-body{position:relative;border-radius:10px;outline-offset:4px;outline:0 solid transparent}
+.outils-root .lex .plate-body.act{outline:1px dashed var(--line)}
+.outils-root .lex .plate-body.over{outline:2px dashed var(--accent)}
+.outils-root .lex .plate-empty{height:150px;border:1.5px dashed var(--line);border-radius:6px;display:grid;place-items:center;font-size:13px;color:var(--ink-3);text-align:center;padding:12px}
+.outils-root .lex .plate-alert{font-size:12.5px;line-height:1.4;padding:5px 8px;border-radius:6px;background:var(--warn-soft);color:var(--warn)}
+.outils-root .lex .plate-add{width:320px;min-height:220px;border:1.5px dashed var(--line);border-radius:12px;background:transparent;color:var(--ink-3);font-size:14px;display:grid;place-items:center}
+.outils-root .lex .plate-add:hover{border-color:var(--accent);color:var(--accent)}
+.outils-root .lex .brick{position:relative;color:#fff;display:flex;align-items:center;gap:10px;padding:0 8px 0 12px;cursor:grab;animation:brickIn .5s cubic-bezier(.22,1,.36,1);background:var(--c);height:calc(24px + var(--h)*20px)}
+.outils-root .lex .brick-l{font-weight:600;font-size:14px;flex:1;display:flex;gap:10px;align-items:baseline}
+.outils-root .lex .brick-l small{font:11px var(--mono);opacity:.75}
+.outils-root .lex .brick-act{display:flex;gap:3px}
+.outils-root .lex .brick-act button{border:0;width:22px;height:22px;border-radius:4px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;padding:0}
+.outils-root .lex .brick-act button:hover{background:rgba(255,255,255,.35)}
+.outils-root .lex .brick-act button:last-child:hover{background:rgba(0,0,0,.35)}
+@keyframes brickIn{from{opacity:0;transform:translateY(-26px)}60%{opacity:1;transform:translateY(3px)}to{transform:none}}
+/* Façade */
+.outils-root .lex .v-facade .stack{display:flex;flex-direction:column;padding:12px 14px 0}
+.outils-root .lex .v-facade .brick{margin-top:7px;border-radius:4px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.25)}
+.outils-root .lex .v-facade .brick.over{box-shadow:inset 0 -4px 0 rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.25),0 -10px 0 -7px var(--accent)}
+.outils-root .lex .brick .studs{position:absolute;top:-6px;left:10px;right:10px;display:flex;justify-content:space-between}
+.outils-root .lex .brick .studs u{display:block;width:20px;height:6px;border-radius:3px 3px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.3);background:var(--c);text-decoration:none}
+.outils-root .lex .v-facade .baseplate{position:relative;margin-top:8px;height:16px;border-radius:3px;background:#8c8676;box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
+/* Relief 3D */
+.outils-root .lex .v-relief .stack{display:flex;flex-direction:column;padding:26px 30px 0 8px}
+.outils-root .lex .v-relief .brick{margin-top:4px}
+.outils-root .lex .v-relief .brick.over{box-shadow:0 -18px 0 -15px var(--accent)}
+.outils-root .lex .v-relief .brick .face-top{position:absolute;left:0;top:-14px;width:100%;height:14px;transform:skewX(-45deg);transform-origin:bottom left;background-image:radial-gradient(ellipse 5px 3px at 50% 50%,rgba(255,255,255,.5) 90%,transparent 100%),linear-gradient(rgba(255,255,255,.24),rgba(255,255,255,.24));background-size:26px 14px,auto;background-color:var(--c)}
+.outils-root .lex .v-relief .brick .face-side{position:absolute;right:-14px;top:0;width:14px;height:100%;transform:skewY(-45deg);transform-origin:top left;background-image:linear-gradient(rgba(0,0,0,.3),rgba(0,0,0,.3));background-color:var(--c)}
+.outils-root .lex .v-relief .baseplate{position:relative;margin:18px 16px 0 0;height:14px;background:#8c8676;z-index:0}
+.outils-root .lex .v-relief .baseplate .face-top{position:absolute;left:0;top:-16px;width:100%;height:16px;transform:skewX(-45deg);transform-origin:bottom left;background-color:#a39c8a;background-image:radial-gradient(ellipse 5px 3px at 50% 50%,rgba(0,0,0,.18) 90%,transparent 100%);background-size:18px 16px}
+.outils-root .lex .v-relief .baseplate .face-side{position:absolute;right:-16px;top:0;width:16px;height:100%;transform:skewY(-45deg);transform-origin:top left;background:#6f6a5d}
+/* Vue de dessus */
+.outils-root .lex .v-plaque .plate-body{border-radius:8px;min-height:190px;background-color:#d9d2c1;background-image:radial-gradient(circle,rgba(0,0,0,.09) 0 4px,transparent 4.5px);background-size:18px 18px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 3px 0 #b9b19d}
+.outils-root .lex .v-plaque .stack{display:flex;flex-direction:column;gap:8px;padding:14px}
+.outils-root .lex .v-plaque .brick{margin:0 auto;border-radius:4px;justify-content:center;width:calc(var(--w)/8*100%);height:calc(22px + var(--h)*22px);background-image:radial-gradient(circle,rgba(255,255,255,.26) 0 5px,rgba(0,0,0,.16) 5.5px 6.5px,transparent 7px);background-size:18px 18px;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.outils-root .lex .v-plaque .brick.over{box-shadow:0 2px 0 rgba(0,0,0,.25),0 0 0 3px var(--accent)}
+.outils-root .lex .v-plaque .brick-l{flex:none;background:rgba(20,18,15,.72);border-radius:999px;padding:3px 10px 3px 8px;font-size:12.5px}
+.outils-root .lex .v-plaque .brick-l small{font-size:10px}
+.outils-root .lex .v-plaque .brick-act{position:absolute;top:4px;right:4px;gap:2px}
+.outils-root .lex .v-plaque .brick-act button{width:20px;height:20px;font-size:10px;background:rgba(20,18,15,.55)}
+.outils-root .lex .v-plaque .plate-empty{border-color:rgba(0,0,0,.2);color:#5e594d}
+
+/* Élément */
+.outils-root .lex .el-brick{position:relative;width:78px;height:54px;margin-top:7px;border-radius:5px;display:grid;place-items:center;color:#fff;font:400 34px/1 var(--serif);box-shadow:inset 0 -4px 0 rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.25);background:var(--c)}
+.outils-root .lex .el-brick i{position:absolute;top:-7px;left:9px;right:9px;height:7px;background:linear-gradient(90deg,var(--c) 0 22px,transparent 22px calc(100% - 22px),var(--c) calc(100% - 22px));border-radius:3px 3px 0 0}
+.outils-root .lex .el-ctx{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 24px}
+.outils-root .lex .el-ctx>span{font:11px var(--mono);color:var(--ink-3);margin-right:4px}
+.outils-root .lex .el-ctx button{border-radius:999px;padding:4px 10px;font-size:12.5px;white-space:nowrap;display:inline-flex;gap:6px;align-items:center;background:var(--surface);color:var(--ink-2);border:1px solid var(--line)}
+.outils-root .lex .el-ctx button[aria-current]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.outils-root .lex .el-ctx i{width:8px;height:8px;border-radius:2px}
+.outils-root .lex .el-ctx b{font:700 10px var(--mono);color:var(--ok)}
+.outils-root .lex .el-reuse{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-radius:12px;padding:12px 16px;margin:0 0 24px;background:var(--ok-soft);color:var(--ok);font-size:14px}
+.outils-root .lex .el-reuse span{flex:1;min-width:220px}
+.outils-root .lex .el-reuse button{border:1px solid var(--ok);background:transparent;color:var(--ok);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600}
+.outils-root .lex .grid-var{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin-bottom:30px}
+.outils-root .lex .tone{grid-column:1/-1;justify-self:start;margin-top:4px;font:10.5px var(--mono);color:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.outils-root .lex .ex-add.letter::before{content:attr(data-l);font:700 11px var(--mono)}
+.outils-root .lex .ex.on .ex-add.letter::before{content:attr(data-l)}
+.outils-root .lex .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:30px}
+.outils-root .lex .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.outils-root .lex .pill.on{border-color:var(--accent);background:var(--accent-soft)}
+.outils-root .lex .pill.miss{border:1px dashed var(--accent)}
+.outils-root .lex .pill.ban{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+.outils-root .lex .pills-hint{margin:-20px 0 30px;font-size:12.5px;color:var(--warn)}
+.outils-root .lex .locals{display:grid;gap:10px;margin-bottom:30px}
+.outils-root .lex .local{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.outils-root .lex .local-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.outils-root .lex .local-head>b{font-size:15px}
+.outils-root .lex .local-free{margin-left:auto;font-size:12.5px;color:var(--ink-3)}
+.outils-root .lex .local-note{margin:-4px 0 10px;font-size:12.5px;color:var(--ink-3)}
+.outils-root .lex .local-note.warn{color:var(--warn)}
+.outils-root .lex .local-note.ok{color:var(--ok)}
+.outils-root .lex .row-label{display:block;font:10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ok);margin-bottom:6px}
+.outils-root .lex .hrow{display:grid;grid-auto-flow:column;grid-auto-columns:210px;gap:10px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin}
+.outils-root .lex .hrow .ex{background:var(--bg);border-radius:10px}
+.outils-root .lex .more-btn{margin:6px 0;border:0;background:transparent;padding:4px 0;font-size:13px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+.outils-root .lex .more-btn:hover{color:var(--accent)}
+.outils-root .lex .inherit{background:var(--surface-2);border-radius:12px;padding:14px 18px;margin-bottom:22px}
+.outils-root .lex .inherit-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:8px}
+.outils-root .lex .inherit-head h3{font:400 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:0}
+.outils-root .lex .inherit-head button{border:0;background:transparent;padding:0;font-size:12.5px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+.outils-root .lex .inherit-head button:hover{color:var(--accent)}
+.outils-root .lex .inherit-row{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline;font-size:13px;color:var(--ink-2);margin-top:6px}
+.outils-root .lex .inherit-row b{font:400 10.5px var(--mono);color:var(--ink-3);letter-spacing:.04em}
+/* Boucle Claude Design */
+.outils-root .lex .loop{border:1.5px solid var(--accent);border-radius:14px;background:var(--surface);padding:18px 20px}
+.outils-root .lex .loop.done{border-color:var(--ok)}
+.outils-root .lex .loop-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 22px;margin-top:10px}
+.outils-root .lex .loop-grid.direct{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.outils-root .lex .loop-grid>div{display:flex;flex-direction:column;gap:8px;min-width:0}
+.outils-root .lex .loop-grid p{margin:0;font-size:14px;color:var(--ink-2)}
+.outils-root .lex .loop-grid .btn{align-self:flex-start}
+.outils-root .lex .loop-n{font:700 11px var(--mono);color:var(--accent)}
+.outils-root .lex .loop-paste{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.outils-root .lex .loop-grid .loop-paste{margin-top:0}
+.outils-root .lex .loop-grid .loop-paste.wide{grid-column:span 2}
+.outils-root .lex .loop-paste textarea{width:100%;min-height:110px;resize:vertical;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:12px/1.6 var(--mono)}
+.outils-root .lex .loop-paste textarea:focus,.outils-root .lex .loop-input:focus{outline:none;border-color:var(--accent)}
+.outils-root .lex .loop-input{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px}
+.outils-root .lex .letters{display:flex;flex-wrap:wrap;gap:6px}
+.outils-root .lex .letters button{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;font-size:13px;border:1px solid var(--line);background:var(--surface)}
+.outils-root .lex .letters button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.outils-root .lex .letters b{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--mono);background:var(--surface-2);color:var(--ink-2)}
+.outils-root .lex .letters button[aria-pressed="true"] b{background:var(--accent);color:var(--on-accent)}
+.outils-root .lex .loop-foot{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.outils-root .lex .loop-foot span{font-size:13px;color:var(--ink-3)}
+.outils-root .lex .loop-foot span.ok{color:var(--ok)}
+/* Final */
+.outils-root .lex .fin-pages{display:flex;flex-direction:column;gap:18px;margin:0 0 30px}
+.outils-root .lex .fin-page{display:block;font:400 22px/1 var(--serif);margin-bottom:8px}
+.outils-root .lex .rc span{text-align:center}
+.outils-root .lex .rc span i{display:block;width:10px;height:10px;border-radius:2px;margin:0 auto 4px}
+
+@media (max-width:860px){
+  .outils-root .lex .nav-steps{display:none}
+  .outils-root .lex .plate,.outils-root .lex .plate-add,.outils-root .lex .plate.v-plaque{width:100%}
+  .outils-root .lex .bin{flex:1 1 100%;position:static}
+  .outils-root .lex .loop-grid .loop-paste.wide{grid-column:auto}
+}

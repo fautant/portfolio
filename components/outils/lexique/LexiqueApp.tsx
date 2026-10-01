@@ -2,46 +2,36 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { PARAMS, PRESETS, TIPS, VG } from "@/data/outils/lexique";
-import type { LexiqueState } from "@/data/outils/lexique-types";
+import { GLOBAL_IDS, LETTERS, LOCAL_IDS } from "@/data/outils/lexique-v2";
+import type { LexiqueV2State, Mode } from "@/data/outils/lexique-types";
 import {
-  activeTensions, buildPrompt, chooseFor, deselect, emptyState, example, filled, lbl, maxOf, pad, presetState, q, select,
-  selectAll, selIds, setNote, setSel, slot, surprise,
+  allBricks, autoGlobal, builderCoh, catOf, edit, elCurrentPrompt, elementOf, emptyEl, example, finalPrompt, fresh, gFilled, gSlot,
+  globalPrompt, lbl, locate, pad, paramOf, q, selectAllGlobal, setGlobalNote, setMode, stepName, steps, surpriseEl, surpriseGlobal,
+  toggleGlobal, variantOf, type Result,
 } from "@/lib/outils/lexique";
 import { ThemeButton } from "../ThemeButton";
-import { ParamStep, type Pending } from "./ParamStep";
-
-const LAST = PARAMS.length + 1; // 0 = accueil, 1..14 = paramètres, 15 = finaliser
-const stepName = (n: number) => (n === 0 ? "Accueil" : n === LAST ? "Finaliser" : (PARAMS[n - 1]?.title ?? ""));
+import { ElementStep } from "./ElementStep";
+import { FinalStep } from "./FinalStep";
+import { ParamStep } from "./ParamStep";
+import { StructureStep } from "./StructureStep";
 
 export interface LexiqueAppProps {
-  initialState: LexiqueState;
-  initialTips: Record<string, boolean>;
-  onChange?: (state: LexiqueState, tips: Record<string, boolean>) => void;
-  /** Appelé quand le prompt est copié (historique) */
-  onCopy?: (prompt: string) => void;
-  /** Clé localStorage pour mémoriser l'étape courante */
-  stepKey: string;
-  brandSub?: string;
+  initialState: LexiqueV2State;
+  onChange?: (state: LexiqueV2State) => void;
   links?: { href: string; label: string }[];
-  status?: ReactNode;
 }
 
-export function LexiqueApp({ initialState, initialTips, onChange, onCopy, stepKey, brandSub, links, status }: LexiqueAppProps) {
-  const [state, setState] = useState<LexiqueState>(initialState);
-  const [tipsOn, setTipsOn] = useState<Record<string, boolean>>(initialTips);
-  const [step, setStep] = useState(0);
-  const [pending, setPending] = useState<Pending | null>(null);
+interface Group {
+  tag: string;
+  items: string[];
+}
+
+export function LexiqueApp({ initialState, onChange, links }: LexiqueAppProps) {
+  const [state, setState] = useState<LexiqueV2State>(initialState);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [builderOpen, setBuilderOpen] = useState(false);
-  const [adv, setAdv] = useState<{ to: number; key: number } | null>(null);
-  const advTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const first = useRef(true);
-  const outRef = useRef<HTMLTextAreaElement>(null);
-
-  const prompt = buildPrompt(state, tipsOn);
-  const ids = selIds(state);
 
   /* Sauvegarde (le premier rendu ne déclenche rien) */
   useEffect(() => {
@@ -49,57 +39,38 @@ export function LexiqueApp({ initialState, initialTips, onChange, onCopy, stepKe
       first.current = false;
       return;
     }
-    onChange?.(state, tipsOn);
-  }, [state, tipsOn, onChange]);
+    onChange?.(state);
+  }, [state, onChange]);
+
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
   const toast = useCallback((m: string) => {
     setToastMsg(m);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToastMsg(null), 2000);
+    toastTimer.current = setTimeout(() => setToastMsg(null), 2200);
   }, []);
 
-  const cancelAdvance = useCallback(() => {
-    if (advTimer.current) clearTimeout(advTimer.current);
-    advTimer.current = null;
-    setAdv(null);
-  }, []);
-
-  const goTo = useCallback(
-    (raw: number) => {
-      const n = Math.max(0, Math.min(LAST, Math.trunc(raw)));
-      cancelAdvance();
-      setPending(null);
-      setStep(n);
-      window.scrollTo(0, 0);
-      try {
-        history.replaceState(null, "", `#etape-${n}`);
-        localStorage.setItem(stepKey, String(n));
-      } catch {
-        /* stockage indisponible */
-      }
-    },
-    [cancelAdvance, stepKey],
-  );
-
-  /* Étape de départ : #etape-n dans l'adresse, sinon la dernière étape visitée */
-  useEffect(() => {
-    let n = 0;
-    const m = /etape-(\d+)/.exec(location.hash || "");
-    if (m) n = Number(m[1]);
+  /** Applique un nouvel état (ou le résultat d'une action, avec son message) */
+  const apply = (r: LexiqueV2State | Result) => {
+    if ("v" in r) setState(r);
     else {
-      try {
-        const v = localStorage.getItem(stepKey);
-        if (v !== null) n = Number(v);
-      } catch {
-        /* ignoré */
-      }
+      setState(r.state);
+      if (r.msg) toast(r.msg);
     }
-    setStep(Number.isNaN(n) ? 0 : Math.max(0, Math.min(LAST, n)));
-  }, [stepKey]);
+  };
 
-  useEffect(() => () => {
-    if (advTimer.current) clearTimeout(advTimer.current);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
+  const keys = steps(state);
+  const step = keys.includes(state.step) ? state.step : "home";
+  const si = keys.indexOf(step);
+  const prevKey = keys[Math.max(0, si - 1)]!;
+  const nextKey = keys[Math.min(keys.length - 1, si + 1)]!;
+
+  const go = useCallback((key: string) => {
+    setState((s) => edit(s, (x) => void (x.step = key)));
+    setBuilderOpen(false);
+    window.scrollTo(0, 0);
   }, []);
 
   /* Flèches gauche / droite + Échap */
@@ -107,73 +78,19 @@ export function LexiqueApp({ initialState, initialTips, onChange, onCopy, stepKe
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setBuilderOpen(false);
       if (e.altKey || e.ctrlKey || e.metaKey || (e.target as HTMLElement).closest("input,textarea")) return;
-      if (e.key === "ArrowRight") goTo(step + 1);
-      else if (e.key === "ArrowLeft") goTo(step - 1);
+      if (e.key === "ArrowRight" && nextKey !== step) go(nextKey);
+      else if (e.key === "ArrowLeft" && prevKey !== step) go(prevKey);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [goTo, step]);
+  }, [go, nextKey, prevKey, step]);
 
-  /* Sur petit écran, le constructeur s'ouvre sur « Finaliser » */
-  useEffect(() => {
-    if (step === LAST && window.innerWidth <= 1240 && ids.length) setBuilderOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step]);
-
-  const scheduleAdvance = (pid: string) => {
-    const i = PARAMS.findIndex((p) => p.id === pid) + 1;
-    if (i !== step) return;
-    cancelAdvance();
-    setAdv({ to: i + 1, key: Date.now() });
-    advTimer.current = setTimeout(() => {
-      setAdv(null);
-      goTo(i + 1);
-    }, 1500);
-  };
-
-  const toggle = (pid: string, k: string) => {
-    if (pending && pending.pid === pid) setPending(null); // modification manuelle : proposition acceptée telle quelle
-    const cur = slot(state, pid).sel;
-    if (cur.includes(k)) {
-      cancelAdvance();
-      setState(deselect(state, pid, k));
-      return;
-    }
-    const { state: ns, replaced } = select(state, pid, k);
-    setState(ns);
-    if (replaced.length) toast(`${q(example(pid, k)?.l ?? k)} remplace ${replaced.map(q).join(", ")}`);
-    if (maxOf(pid) !== Infinity && slot(ns, pid).sel.length >= maxOf(pid)) scheduleAdvance(pid);
-  };
-
-  const autoPick = (pid: string) => {
-    cancelAdvance();
-    const prev = pending && pending.pid === pid ? pending.prev : [...slot(state, pid).sel];
-    const { chosen, guides } = chooseFor(state, pid, true, true);
-    setState(setSel(state, pid, chosen));
-    setPending({ pid, prev, chosen, guides });
-  };
-
-  const onAll = (pid: string) => {
-    const r = selectAll(state, pid);
-    setState(r.state);
-    if (r.cleared) toast("Tout désélectionné");
-    else
-      toast(
-        r.skipped.length
-          ? `${r.count} sélectionnés · non retenu${r.skipped.length > 1 ? "s" : ""} car en contradiction avec tes choix : ${r.skipped.map((k) => q(example(pid, k)?.l ?? k)).join(", ")}`
-          : `Les ${r.count} éléments sont sélectionnés`,
-      );
-  };
-
-  const copy = (text: string) => {
+  const copy = (text: string, msg = "Prompt copié dans le presse-papiers") => {
     if (!text) {
-      toast("Sélectionne au moins un exemple");
+      toast("Rien à copier pour l’instant");
       return;
     }
-    const done = () => {
-      toast("Prompt copié dans le presse-papiers");
-      onCopy?.(text);
-    };
+    const done = () => toast(msg);
     const fallback = () => {
       const ta = document.createElement("textarea");
       ta.value = text;
@@ -193,26 +110,113 @@ export function LexiqueApp({ initialState, initialTips, onChange, onCopy, stepKe
     else fallback();
   };
 
-  /* ---------- Valeurs dérivées ---------- */
-  const doneCount = PARAMS.filter((p) => filled(state, p.id)).length;
-  const missing = PARAMS.length - doneCount;
-  const tens = activeTensions(state);
-  const nt = TIPS.filter((t) => tipsOn[t.k]).length;
-  let count = 0;
-  PARAMS.forEach((p) => {
-    const st = slot(state, p.id);
-    count += st.sel.length + (st.note.trim() ? 1 : 0);
-  });
+  const onMode = (m: Mode) => apply(setMode(state, m));
 
-  const pendingIdx = pending ? PARAMS.findIndex((p) => p.id === pending.pid) : -1;
-  const pendingParam = pendingIdx >= 0 ? PARAMS[pendingIdx] : undefined;
+  /* ---------- Valeurs dérivées ---------- */
+  const bricks = allBricks(state);
+  const loc = locate(state);
+  const multi = state.mode === "multi";
+  const doneEls = bricks.filter((b) => state.el[b.uid]?.done).length;
+  const gDone = GLOBAL_IDS.filter((pid) => gFilled(state, pid)).length;
+  const total = GLOBAL_IDS.length + 1 + bricks.length;
+  const doneAll = gDone + (bricks.length ? 1 : 0) + doneEls;
+  const elUid = step.startsWith("el:") && loc[step.slice(3)] ? step.slice(3) : null;
+
+  /* ---------- Constructeur (panneau droit) ---------- */
+  let aside: { title: string; sub: string; groups: Group[]; empty: string; prompt: string; copyLabel: string; onCopy: () => void; onSurprise: () => void; resetLabel: string; onReset: () => void; hint: string };
+  if (elUid) {
+    const ek = loc[elUid]!.k;
+    const e = elementOf(ek);
+    const d = state.el[elUid] ?? emptyEl();
+    const groups: Group[] = [];
+    if (d.v.length)
+      groups.push({
+        tag: d.cmp ? (d.pick ? "[VARIANTE RETENUE]" : "[VARIANTES À COMPARER]") : "[VARIANTE]",
+        items: d.cmp && d.pick ? [variantOf(ek, d.pick)?.l ?? d.pick] : d.v.map((k, j) => (d.cmp ? `${LETTERS[j]} · ` : "") + (variantOf(ek, k)?.l ?? k)),
+      });
+    if (d.c.length) groups.push({ tag: "[CONTENU]", items: d.c });
+    LOCAL_IDS.forEach((pid) => {
+      const sel = d.p[pid] ?? [];
+      if (sel.length) groups.push({ tag: `[${paramOf(pid).tag}]`, items: sel.map((k) => example(pid, k)?.l ?? k) });
+    });
+    if (d.note.trim()) groups.push({ tag: "[PRÉCISION]", items: [d.note.trim().slice(0, 40)] });
+    const prompt = elCurrentPrompt(state, elUid);
+    aside = {
+      title: e.l,
+      sub: "Prompt Claude Design de cet élément. La direction globale y est incluse.",
+      groups,
+      empty: "Aucun choix spécifique : le prompt laisse Claude Design décider, dans le cadre de la direction globale.",
+      prompt,
+      copyLabel: d.cmp ? (d.pick ? "Copier le prompt d’affinage" : "Copier le prompt d’exploration") : "Copier le prompt de l’élément",
+      onCopy: () => copy(prompt, `Prompt ${q(e.l)} copié`),
+      onSurprise: () => apply(surpriseEl(state, elUid, ek)),
+      resetLabel: "Vider l’élément",
+      onReset: () => { apply(edit(state, (s) => void (s.el[elUid] = emptyEl()))); toast("Élément vidé"); },
+      hint: d.cmp
+        ? d.pick
+          ? "Affinage : à coller dans la même conversation que l’exploration."
+          : "Exploration : une proposition par variante cochée, étiquetées A, B, C…"
+        : "Le prompt demande 3 directions contrastées. Colle ensuite celle que tu retiens dans l’étape 02.",
+    };
+  } else if (step === "final") {
+    const prompt = finalPrompt(state);
+    aside = {
+      title: "Claude Code",
+      sub: "Direction globale, architecture, spécifications et designs retenus.",
+      groups: state.pages
+        .filter((p) => p.bricks.length)
+        .map((p) => ({ tag: multi ? p.name : "Page unique", items: p.bricks.map((b) => ((state.el[b.uid]?.design ?? "").trim() ? "✓ " : "") + elementOf(b.k).l) })),
+      empty: "Aucune brique : construis la structure pour générer le prompt final.",
+      prompt,
+      copyLabel: "Copier le prompt Claude Code",
+      onCopy: () => copy(prompt, "Prompt Claude Code copié"),
+      onSurprise: () => apply(surpriseGlobal(state)),
+      resetLabel: "Revoir la structure",
+      onReset: () => go("structure"),
+      hint: "Le design collé pour chaque élément est transmis tel quel, entre triples guillemets.",
+    };
+  } else {
+    const prompt = globalPrompt(state);
+    aside = {
+      title: "Direction globale",
+      sub: "Incluse automatiquement dans chaque prompt d’élément et dans le prompt final.",
+      groups: GLOBAL_IDS.flatMap((pid) => {
+        const sl = gSlot(state, pid);
+        if (pid === "type") return [{ tag: "[TYPE]", items: ["Portfolio", "Développeur fullstack", ...(state.mode ? [multi ? "Multi-pages" : "One-page"] : [])] }];
+        const items = [...sl.sel.map((k) => lbl(pid === "sys" ? k : `${pid}.${k}`)), ...(sl.note.trim() ? [q(sl.note.trim().slice(0, 28))] : [])];
+        return items.length ? [{ tag: `[${paramOf(pid).tag}]`, items }] : [];
+      }),
+      empty: "Aucun élément pour l’instant. Clique sur les exemples (+) des étapes globales.",
+      prompt,
+      copyLabel: "Copier la direction globale",
+      onCopy: () => copy(prompt),
+      onSurprise: () => apply(surpriseGlobal(state)),
+      resetLabel: "Réinitialiser",
+      onReset: () => { setState(fresh()); toast("Tout est réinitialisé"); },
+      hint: "« Surprends-moi » tire une direction globale au hasard, quitte à retoucher ensuite.",
+    };
+  }
+  const asideNum = aside.groups.reduce((t, g) => t + g.items.length, 0);
+  const coh = builderCoh(state, step);
+
+  const navLink = (key: string, label: ReactNode, mark: string, ok = false) => (
+    <a
+      href={`#${key.replace(":", "-")}`}
+      className={`${step === key ? "active" : ""} ${ok ? "done" : ""}`}
+      aria-current={step === key ? "step" : undefined}
+      onClick={(e) => { e.preventDefault(); go(key); }}
+    >
+      <span>{mark}</span>
+      {label}
+    </a>
+  );
 
   return (
     <div className="lex">
       <div className="app">
         <nav className="nav" aria-label="Sommaire">
           <p className="brand">Lexique du prompt design</p>
-          <p className="brand-sub">{brandSub ?? "14 paramètres pour briefer une IA"}</p>
+          <p className="brand-sub">Global → structure → éléments → code</p>
           {links?.map((l) => (
             <Link key={l.href} className="home-link" href={l.href}>
               {l.label}
@@ -220,309 +224,229 @@ export function LexiqueApp({ initialState, initialTips, onChange, onCopy, stepKe
           ))}
           <div className="prog" aria-live="polite">
             <span>
-              {doneCount}/{PARAMS.length} étapes validées
+              {doneAll}/{total} étapes validées
             </span>
             <i>
-              <b style={{ width: `${(doneCount / PARAMS.length) * 100}%` }} />
+              <b style={{ width: `${(doneAll / total) * 100}%` }} />
             </i>
           </div>
-          <ol>
-            <li>
-              <a href="#etape-0" className={step === 0 ? "active" : ""} aria-current={step === 0 ? "step" : undefined} onClick={(e) => { e.preventDefault(); setBuilderOpen(false); goTo(0); }}>
-                <span>—</span>Accueil &amp; exemples
-              </a>
-            </li>
-            {PARAMS.map((p, i) => {
-              const ok = filled(state, p.id);
-              return (
-                <li key={p.id}>
-                  <a
-                    href={`#etape-${i + 1}`}
-                    className={`${step === i + 1 ? "active" : ""} ${ok ? "done" : ""}`}
-                    aria-current={step === i + 1 ? "step" : undefined}
-                    onClick={(e) => { e.preventDefault(); setBuilderOpen(false); goTo(i + 1); }}
-                  >
-                    <span>{ok ? "✓" : pad(i + 1)}</span>
-                    {p.title}
-                  </a>
-                </li>
-              );
-            })}
-            <li>
-              <a href={`#etape-${LAST}`} className={step === LAST ? "active" : ""} aria-current={step === LAST ? "step" : undefined} onClick={(e) => { e.preventDefault(); setBuilderOpen(false); goTo(LAST); }}>
-                <span>→</span>Finaliser
-              </a>
-            </li>
-          </ol>
-          <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 22, flexWrap: "wrap" }}>
-            <ThemeButton className="theme-btn" style={{ marginTop: 0, flex: 1 }} />
+          <div className="nav-steps">
+            <ol>
+              <li>{navLink("home", "Accueil", "—")}</li>
+            </ol>
+            <b className="nav-group">01 · Global</b>
+            <ol>
+              {GLOBAL_IDS.map((pid, i) => {
+                const ok = gFilled(state, pid);
+                return <li key={pid}>{navLink(`g:${pid}`, paramOf(pid).title, ok ? "✓" : pad(i + 1), ok)}</li>;
+              })}
+            </ol>
+            <b className="nav-group">02 · Structure</b>
+            <ol>
+              <li>{navLink("structure", "Empiler les briques", bricks.length ? "✓" : "··", bricks.length > 0)}</li>
+            </ol>
+            <b className="nav-group">03 · Éléments</b>
+            {!bricks.length && <p className="nav-empty">Les éléments apparaîtront ici une fois la structure construite.</p>}
+            {state.pages
+              .filter((p) => p.bricks.length)
+              .map((p) => (
+                <div className="nav-page" key={p.id}>
+                  {multi && <span className="nav-page-name">{p.name}</span>}
+                  <ol>
+                    {p.bricks.map((b) => {
+                      const ok = !!state.el[b.uid]?.done;
+                      const key = `el:${b.uid}`;
+                      return (
+                        <li key={b.uid}>
+                          <a
+                            href={`#el-${b.uid}`}
+                            className={`nav-el ${step === key ? "active" : ""} ${ok ? "done" : ""}`}
+                            aria-current={step === key ? "step" : undefined}
+                            onClick={(e) => { e.preventDefault(); go(key); }}
+                          >
+                            <i className="sq" style={{ background: catOf(b.k).c }} />
+                            {elementOf(b.k).l}
+                            <span className="mk">{ok ? "✓" : ""}</span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </div>
+              ))}
+            <b className="nav-group">04 · Code</b>
+            <ol>
+              <li>{navLink("final", "Prompt Claude Code", "→")}</li>
+            </ol>
           </div>
-          {status && <div style={{ marginTop: 12, fontFamily: "var(--mono)", fontSize: 11.5, color: "var(--ink-3)" }}>{status}</div>}
+          <ThemeButton className="theme-btn" />
         </nav>
 
         <main id="main">
-          {step === 0 && (
-            <>
-              <section className="hero is-current" id="intro">
-                <h1>
-                  Ce qu’il faut <em>dire</em> à une IA pour obtenir un vrai design
-                </h1>
-                <p>
-                  « Moderne et épuré », c’est ce que l’IA fait déjà par défaut. Pour obtenir une direction artistique originale, il faut des mots précis, des valeurs concrètes (codes hex, tailles, durées) et des références. Chaque paramètre ci-dessous est expliqué, puis illustré par des exemples que tu peux reprendre tels quels.
-                </p>
-                <div className="formula">
-                  {PARAMS.map((p, i) => (
-                    <span key={p.id} style={{ display: "contents" }}>
-                      {i > 0 && <span className="plus">+</span>}
-                      <a href={`#etape-${i + 1}`} className={p.added ? "new" : ""} onClick={(e) => { e.preventDefault(); goTo(i + 1); }}>
-                        [{p.tag}]
-                      </a>
-                    </span>
-                  ))}
+          {step === "home" && (
+            <section className="hero is-current" id="intro">
+              <h1>
+                Ton portfolio, <em>brique</em> par brique
+              </h1>
+              <p>
+                Fixe d’abord la direction globale du site. Empile ensuite les sections de chaque page. Conçois chaque élément avec Claude Design, un prompt à la fois. À la fin, un prompt unique rassemble tout pour que Claude Code le code.
+              </p>
+              <div className="steps four">
+                <div className="step">
+                  <b>01 — GLOBAL</b>
+                  <p>Type, style, typographie, couleurs, système de mise en page… {GLOBAL_IDS.length} paramètres communs à tout le site.</p>
                 </div>
-                <div className="steps">
-                  <div className="step">
-                    <b>01 — PARCOURIR</b>
-                    <p>Lis ce que contrôle chaque paramètre et regarde les aperçus visuels. Les démos d’interaction réagissent à la souris.</p>
-                  </div>
-                  <div className="step">
-                    <b>02 — SÉLECTIONNER</b>
-                    <p>Clique sur les exemples qui te parlent (+). Ajoute ta propre précision sous chaque section.</p>
-                  </div>
-                  <div className="step">
-                    <b>03 — COPIER</b>
-                    <p>Le panneau « Ton prompt » assemble tout dans le bon format. Copie-le, puis colle-le dans Claude Design.</p>
-                  </div>
+                <div className="step">
+                  <b>02 — STRUCTURE</b>
+                  <p>Empile les briques (hero, projets, contact…) sur le plateau de chaque page.</p>
                 </div>
-                <p className="legend">
-                  <span className="dash">[pointillés]</span> = paramètres ajoutés à ta formule d’origine, recommandés dans les guides de prompting UI.
-                </p>
-                <div className="rules">
-                  <div className="r1"><b>Choix limités</b>Chaque paramètre a un maximum (1/2, 2/3…). Une sélection de trop remplace la plus ancienne.</div>
-                  <div className="r2"><b>Contradictions</b>Deux choix impossibles à tenir ensemble (angles vifs + très arrondi) se remplacent automatiquement.</div>
-                  <div className="r3"><b>Tensions</b>Un mélange audacieux mais possible est signalé en orange. À toi de préciser ce qui domine.</div>
+                <div className="step">
+                  <b>03 — ÉLÉMENTS</b>
+                  <p>Pour chaque brique : variante, contenu, composition, interactions. Un prompt Claude Design par élément.</p>
                 </div>
-              </section>
-              <section className="block is-current" id="presets-sec">
-                <span className="tag">[EXEMPLES COMPLETS]</span>
-                <h2>Trois directions pour un portfolio</h2>
-                <p className="lead" style={{ marginTop: 12 }}>
-                  Trois prompts complets et très différents, construits avec les paramètres de cette page. Charge-en un dans le constructeur, puis modifie-le paramètre par paramètre.
-                </p>
-                <div className="presets">
-                  {PRESETS.map((pr) => {
-                    const cols = example("color", pr.sel.color?.[0] ?? "")?.pv?.c ?? [];
-                    return (
-                      <article className="preset" key={pr.name}>
-                        <div className="pv" dangerouslySetInnerHTML={{ __html: VG[pr.vg] ?? "" }} />
-                        <div className="preset-body">
-                          <h3>{pr.name}</h3>
-                          <div className="sw">{cols.map((c) => <i key={c} style={{ background: c }} />)}</div>
-                          <p>{pr.desc}</p>
-                          <div className="row">
-                            <button className="btn accent" type="button" onClick={() => { setState(presetState(pr.sel)); goTo(LAST); toast("Exemple chargé : modifie une étape via le menu"); }}>
-                              Charger dans le constructeur
-                            </button>
-                            <button className="btn" type="button" onClick={() => copy(buildPrompt(presetState(pr.sel), tipsOn))}>
-                              Copier
-                            </button>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
+                <div className="step">
+                  <b>04 — CODE</b>
+                  <p>Colle le design retenu de chaque élément, puis copie le prompt final pour Claude Code.</p>
                 </div>
-                <div className="step-nav">
-                  <span />
-                  <button className="btn primary" type="button" onClick={() => goTo(1)}>
-                    Commencer par l’étape 1 : Type &amp; contexte →
-                  </button>
-                </div>
-              </section>
-            </>
+              </div>
+              <div className="step-nav">
+                <span />
+                <button className="btn primary" type="button" onClick={() => go(`g:${GLOBAL_IDS[0]}`)}>
+                  Commencer : {paramOf(GLOBAL_IDS[0]!).title} →
+                </button>
+              </div>
+            </section>
           )}
 
-          {step >= 1 && step <= PARAMS.length && PARAMS[step - 1] && (
+          {step.startsWith("g:") && (
             <ParamStep
-              key={PARAMS[step - 1]!.id}
-              index={step - 1}
-              param={PARAMS[step - 1]!}
+              key={step}
+              pid={step.slice(2)}
               state={state}
-              pending={pending}
-              onToggle={toggle}
-              onNote={(pid, v) => { cancelAdvance(); setState((s) => setNote(s, pid, v)); }}
-              onAuto={autoPick}
-              onAll={onAll}
-              onPrev={() => goTo(step - 1)}
-              onNext={() => goTo(step + 1)}
+              step={step}
+              onToggle={(pid, k) => apply(toggleGlobal(state, pid, k))}
+              onNote={(pid, v) => apply(setGlobalNote(state, pid, v))}
+              onAuto={(pid) => apply(autoGlobal(state, pid))}
+              onAll={(pid) => apply(selectAllGlobal(state, pid))}
+              onMode={onMode}
+              onToast={toast}
+              onGo={go}
+              onPrev={() => go(prevKey)}
+              onNext={() => go(nextKey)}
+              prevName={stepName(state, prevKey)}
+              nextName={stepName(state, nextKey)}
             />
           )}
 
-          {step === LAST && (
-            <>
-              <section className="block is-current" id="final">
-                <span className="tag">[FINALISER]</span>
-                <h2>{!doneCount ? "Rien de sélectionné pour l’instant" : missing ? `Ton prompt est prêt à ${Math.round((doneCount / PARAMS.length) * 100)} %` : "Ton prompt est prêt"}</h2>
-                <p className="lead" style={{ marginTop: 12 }}>
-                  {missing
-                    ? `${doneCount} étape${doneCount > 1 ? "s" : ""} sur ${PARAMS.length} remplie${doneCount > 1 ? "s" : ""}. Tu peux copier le prompt tel quel, ou compléter les étapes restantes.`
-                    : "Les 14 étapes sont remplies. Copie le prompt et colle-le dans Claude Design."}
-                </p>
-                <div className="recap">
-                  {PARAMS.map((p, i) => {
-                    const ok = filled(state, p.id);
-                    const labels = slot(state, p.id).sel.map((k) => example(p.id, k)?.l ?? k).join(", ");
-                    return (
-                      <button key={p.id} type="button" className={`rc ${ok ? "ok" : ""}`} onClick={() => goTo(i + 1)}>
-                        <span>{ok ? "✓" : pad(i + 1)}</span>
-                        {p.title}
-                        <em>{ok ? labels || "Précision libre" : "À compléter"}</em>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="row">
-                  <button className="btn primary" type="button" onClick={() => copy(prompt)}>Copier le prompt</button>
-                  <button className="btn" type="button" onClick={() => { setBuilderOpen(true); outRef.current?.focus(); }}>Voir le prompt complet</button>
-                </div>
-              </section>
-              <section className="block is-current" id="tips" style={{ marginTop: 48 }}>
-                <span className="tag">[MÉTHODE]</span>
-                <h2>Astuces pour de meilleurs résultats</h2>
-                <p className="lead" style={{ marginTop: 12 }}>Même un prompt riche peut donner un résultat générique. Ces réflexes font la différence.</p>
-                <div className={`tips-banner ${nt ? "" : "none"}`} role="status">
-                  {nt ? (
-                    <>
-                      <strong>✓ {nt} consigne{nt > 1 ? "s" : ""} sur {TIPS.length} intégrée{nt > 1 ? "s" : ""} automatiquement à ton prompt</strong>
-                      Elles apparaissent à la fin, dans un bloc [MÉTHODE]. Clique sur une carte pour la retirer ou la remettre.
-                    </>
-                  ) : (
-                    <>
-                      <strong>Aucune consigne intégrée</strong>
-                      Clique sur une carte pour l’ajouter au bloc [MÉTHODE] de ton prompt.
-                    </>
-                  )}
-                </div>
-                <div className="tips">
-                  {TIPS.map((t, i) => {
-                    const on = !!tipsOn[t.k];
-                    return (
-                      <button
-                        key={t.k}
-                        className={`tip-card ${on ? "" : "off"}`}
-                        type="button"
-                        aria-pressed={on}
-                        onClick={() => { setTipsOn({ ...tipsOn, [t.k]: !on }); toast(!on ? "Consigne ajoutée au prompt" : "Consigne retirée du prompt"); }}
-                      >
-                        <b><span>{pad(i + 1)}</span>{t.t}</b>
-                        {t.d}
-                        <em>Ajouté au prompt : « {t.p} »</em>
-                        <span className="tip-state">{on ? "✓ Inclus dans le prompt" : "Non inclus — clique pour l’ajouter"}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="step-nav">
-                  <button className="btn" type="button" onClick={() => goTo(step - 1)}>← Étape précédente</button>
-                  <span />
-                </div>
-              </section>
-            </>
+          {step === "structure" && (
+            <StructureStep
+              state={state}
+              apply={apply}
+              onMode={onMode}
+              onToast={toast}
+              onPrev={() => go(prevKey)}
+              onNext={() => go(nextKey)}
+              prevName={stepName(state, prevKey)}
+            />
           )}
+
+          {elUid && (
+            <ElementStep
+              key={elUid}
+              state={state}
+              uid={elUid}
+              step={step}
+              nextKey={nextKey}
+              nextName={stepName(state, nextKey)}
+              prevName={stepName(state, prevKey)}
+              apply={apply}
+              onToast={toast}
+              onGo={go}
+              onCopy={copy}
+              onPrev={() => go(prevKey)}
+              onNext={() => go(nextKey)}
+            />
+          )}
+
+          {step === "final" && <FinalStep state={state} apply={apply} onGo={go} onCopy={copy} onPrev={() => go(prevKey)} prevName={stepName(state, prevKey)} />}
         </main>
 
         <aside className={`builder ${builderOpen ? "open" : ""}`} aria-label="Constructeur de prompt">
           <div className="b-head">
-            <h2>Ton prompt</h2>
-            <span className="b-count">{count} élément{count > 1 ? "s" : ""}</span>
-            <button className="b-close" type="button" aria-label="Fermer" onClick={() => setBuilderOpen(false)}>×</button>
+            <h2>{aside.title}</h2>
+            <span className="b-count">
+              {asideNum} élément{asideNum > 1 ? "s" : ""}
+            </span>
+            <button className="b-close" type="button" aria-label="Fermer" onClick={() => setBuilderOpen(false)}>
+              ×
+            </button>
           </div>
+          <p className="b-sub">{aside.sub}</p>
           <div className="b-chips">
-            {count === 0 && <p className="b-empty">Aucun élément pour l’instant. Clique sur les exemples (+) ou charge un exemple complet.</p>}
-            {PARAMS.filter((p) => slot(state, p.id).sel.length || slot(state, p.id).note.trim()).map((p) => {
-              const st = slot(state, p.id);
-              const note = st.note.trim();
-              return (
-                <div className="b-group" key={p.id}>
-                  <b>[{p.tag}]</b>
-                  <div>
-                    {st.sel.map((k) => (
-                      <span className="chip" key={k}>
-                        {example(p.id, k)?.l}
-                        <button type="button" aria-label={`Retirer ${example(p.id, k)?.l}`} onClick={() => toggle(p.id, k)}>✕</button>
-                      </span>
-                    ))}
-                    {note && (
-                      <span className="chip">
-                        « {note.slice(0, 28)}{note.length > 28 ? "…" : ""} »
-                        <button type="button" aria-label="Retirer la précision" onClick={() => setState(setNote(state, p.id, ""))}>✕</button>
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className={`coh ${!ids.length ? "" : tens.length ? "warn" : "ok"}`} aria-live="polite">
-            {ids.length > 0 && (tens.length ? (
-              <>
-                <strong>⚠ {tens.length} tension{tens.length > 1 ? "s" : ""} à arbitrer</strong>
-                <ul>
-                  {tens.map(([a, b, m]) => (
-                    <li key={a + b}>{q(lbl(a))} + {q(lbl(b))} <span>: {m}</span></li>
+            {!aside.groups.length && <p className="b-empty">{aside.empty}</p>}
+            {aside.groups.map((g) => (
+              <div className="b-group" key={g.tag}>
+                <b>{g.tag}</b>
+                <div>
+                  {g.items.map((it, i) => (
+                    <span className="chip plain" key={i}>
+                      {it}
+                    </span>
                   ))}
-                </ul>
-                <p>Précise dans ta note ce qui domine, ou retire l’un des deux.</p>
-              </>
-            ) : (
-              <>
-                <strong>✓ Sélection cohérente</strong>Aucune contradiction ni tension détectée.
-              </>
+                </div>
+              </div>
             ))}
           </div>
-          <a className="b-tips" href={`#etape-${LAST}`} onClick={(e) => { e.preventDefault(); goTo(LAST); }}>
-            {nt ? `+ ${nt} consigne${nt > 1 ? "s" : ""} de méthode intégrée${nt > 1 ? "s" : ""} au prompt (voir les astuces)` : "Aucune consigne de méthode intégrée (voir les astuces)"}
-          </a>
-          <textarea className="out" ref={outRef} readOnly aria-label="Prompt généré" value={prompt} placeholder="Le prompt assemblé apparaîtra ici." />
+          {coh.show && (
+            <div className={`coh ${coh.items.length ? "warn" : "ok"}`} aria-live="polite">
+              {coh.items.length ? (
+                <>
+                  <strong>
+                    ⚠ {coh.items.length} point{coh.items.length > 1 ? "s" : ""} à arbitrer
+                  </strong>
+                  <ul>
+                    {coh.items.map((ci, i) => (
+                      <li key={i}>
+                        {ci.pair} <span>: {ci.m}</span>
+                        {ci.links.map((lk) => (
+                          <button key={lk.key} type="button" className="coh-go" title="Aller à cette étape" onClick={() => go(lk.key)}>
+                            {lk.name} →
+                          </button>
+                        ))}
+                      </li>
+                    ))}
+                  </ul>
+                  <p>Précise dans ta note ce qui domine, ou retire l’un des deux.</p>
+                </>
+              ) : (
+                <>
+                  <strong>✓ Sélection cohérente</strong>Aucune contradiction ni tension détectée.
+                </>
+              )}
+            </div>
+          )}
+          <textarea className="out" readOnly aria-label="Prompt généré" value={aside.prompt} placeholder="Le prompt assemblé apparaîtra ici." />
           <div className="b-actions">
-            <button className="btn primary" type="button" onClick={() => copy(prompt)}>Copier le prompt</button>
-            <button className="btn" type="button" onClick={() => { setState(surprise(state)); goTo(LAST); toast("Nouvelle combinaison cohérente tirée au sort"); }}>Surprends-moi</button>
-            <button className="btn" type="button" onClick={() => { setState(emptyState()); toast("Constructeur vidé"); }}>Réinitialiser</button>
+            <button className="btn primary" type="button" onClick={aside.onCopy}>
+              {aside.copyLabel}
+            </button>
+            <button className="btn" type="button" onClick={aside.onSurprise}>
+              Surprends-moi
+            </button>
+            <button className="btn" type="button" onClick={aside.onReset}>
+              {aside.resetLabel}
+            </button>
           </div>
-          <p className="b-hint">« Surprends-moi » tire une combinaison au hasard. Parfait pour sortir de tes habitudes, quitte à retoucher ensuite.</p>
+          <p className="b-hint">{aside.hint}</p>
         </aside>
       </div>
 
       <button className="fab" type="button" onClick={() => setBuilderOpen(true)}>
-        Ton prompt <span>{count}</span>
+        Ton prompt <span>{asideNum}</span>
       </button>
-      <div className={`toast ${toastMsg ? "show" : ""}`} role="status" aria-live="polite">{toastMsg}</div>
-
-      <div className={`confirm ${pending ? "show" : ""}`} role="dialog" aria-live="polite" aria-label="Valider la proposition">
-        {pending && pendingParam && (
-          <>
-            <div className="cfm-txt">
-              <strong>Proposition pour « {pendingParam.title} » ({pending.chosen.length} choix)</strong>
-              {pending.chosen.map((k) => example(pending.pid, k)?.l).join(" · ")}
-              {pending.guides.length > 0 && <small>En cohérence avec {pending.guides.map((id) => q(lbl(id))).join(", ")}</small>}
-            </div>
-            <div className="cfm-actions">
-              <button className="btn accent" type="button" onClick={() => { setPending(null); goTo(pendingIdx + 2); }}>
-                {pendingIdx < PARAMS.length - 1 ? `Valider et passer à « ${PARAMS[pendingIdx + 1]?.title} »` : "Valider et finaliser"}
-              </button>
-              <button className="btn" type="button" onClick={() => autoPick(pending.pid)}>Autre proposition</button>
-              <button className="btn" type="button" onClick={() => { setState(setSel(state, pending.pid, pending.prev)); setPending(null); toast("Proposition annulée"); }}>Annuler</button>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className={`autoadv ${adv ? "show run" : ""}`} key={adv?.key} role="status" aria-live="polite">
-        <span>{adv ? `Passage à « ${stepName(adv.to)} »…` : ""}</span>
-        <button type="button" onClick={() => { cancelAdvance(); toast("Passage annulé : tu restes sur cette étape"); }}>Annuler</button>
-        <i><b /></i>
+      <div className={`toast ${toastMsg ? "show" : ""}`} role="status" aria-live="polite">
+        {toastMsg}
       </div>
     </div>
   );
 }
-

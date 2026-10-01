@@ -98,7 +98,7 @@ Portfolio personnel interactif et multilingue (FR/EN) présentant mes compétenc
 Espace privé contenant pour l'instant un seul outil : le **Lexique du prompt design** (`/outils/lexique`). Lien « Connexion » dans la Navbar du portfolio.
 
 - Accès : Supabase Auth par lien magique, uniquement pour l'email `ADMIN_EMAIL` (inscriptions Supabase à désactiver). Garde dans `middleware.ts` + `requireAdmin()` dans `app/outils/(prive)/layout.tsx`.
-- Contenu du Lexique : `data/outils/lexique.ts` (ajouter un exemple = ajouter une ligne). L'état est gardé dans le `localStorage`.
+- Lexique v2, parcours en 4 phases : Global (11 paramètres) → Structure (briques sur plateaux) → Éléments (un prompt Claude Design par brique) → Code (prompt final Claude Code). Contenu : `data/outils/lexique.ts` (paramètres et règles) et `data/outils/lexique-v2.ts` (éléments, variantes, `REL`, `IMPLY`, `VC`). Logique pure : `lib/outils/lexique.ts`. L'état (versionné `v: 2`) est gardé dans `localStorage['lexique-v2-state']`.
 - Les outils Projet et Maquette (tables `design_projects` / `prompt_history`) ont été retirés.
 
 ## 🎨 Design & Theme

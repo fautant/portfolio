@@ -15,7 +15,7 @@ export default function OutilsHome() {
           <Link className="o-card" href="/outils/lexique">
             <span className="n">01</span>
             <h3>Lexique du prompt design</h3>
-            <p>Les 14 paramètres à donner à une IA pour concevoir une interface, avec exemples visuels et constructeur de prompt.</p>
+            <p>Du design global aux briques de chaque page, puis un prompt Claude Design par élément et un prompt final pour Claude Code.</p>
             <span className="go">Ouvrir →</span>
           </Link>
         </div>

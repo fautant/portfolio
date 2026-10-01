@@ -1,7 +1,7 @@
 /* eslint-disable */
 // Contenu du Lexique du prompt design, extrait tel quel de l'ancienne page statique.
-// Ajouter un exemple = ajouter une ligne dans PARAMS.
-import type { Param, Preset, Tip } from "./lexique-types";
+// Ajouter un exemple = ajouter une ligne dans PARAMS. Éléments, variantes et règles v2 : lexique-v2.ts.
+import type { Param, Tip } from "./lexique-types";
 
 export const PARAMS: Param[] = [
 { id:"type", tag:"TYPE", title:"Type & contexte", kind:"text",
@@ -242,29 +242,26 @@ export const PARAMS: Param[] = [
   ]}
 ];
 
-export const PRESETS: Preset[] = [
- {name:"Éditorial suisse", vg:"swiss", desc:"Rigueur typographique, grille visible et liste-index de projets. Pour une designer ou un designer UX qui veut paraître pointu et sûr de ses choix.",
-  sel:{type:["ux"],goal:["agency"],perso:["serious","elegant"],style:["swiss","edito"],refs:["swissposter","mag"],layout:["xxl","index"],space:["airy","grid12"],typo:["neogrotesk","instrument"],color:["monoaccent"],shape:["sharp","hair"],img:["bw"],inter:["hoverimg","underline","reveal"],a11y:["contrast","motion","mobile"],avoid:["purple","cards","hero","anim"]}},
- {name:"Néo-brutaliste ludique", vg:"neo", desc:"Couleurs franches, bordures épaisses et interface façon bureau. Pour un profil développeur qui veut qu'on se souvienne de lui ou d'elle.",
-  sel:{type:["dev"],goal:["memorable"],perso:["playful","geek"],style:["neobrutal","memphis"],refs:["os","zine"],layout:["bento","os"],space:["dense"],typo:["archivo","mono"],color:["pastel"],shape:["thick","hard"],img:["ascii","collage"],inter:["micro","tilt","marquee"],a11y:["mobile","focus"],avoid:["glass","emoji","skills","lorem"]}},
- {name:"Dark tech immersif", vg:"dark", desc:"Sombre, lumineux par touches, et le site est lui-même la démonstration technique. Pour une ou un creative developer.",
-  sel:{type:["creative"],goal:["skill"],perso:["futur","clinical"],style:["dark","term"],refs:["awwwards","nasa"],layout:["hero","stack","hscroll"],space:["rhythm","scale8"],typo:["grotesk","mono"],color:["darkmode"],shape:["grain","hair"],img:["gen","video"],inter:["cursor","scramble","pagetr"],a11y:["motion","focus"],avoid:["cards","inter","centered","stock"]}}
-];
-
-export const MAX: Record<string, number> = {type:1,goal:1,perso:2,style:2,refs:2,layout:3,space:2,typo:2,color:1,shape:3,img:2,inter:3,a11y:Infinity,avoid:Infinity};
+export const MAX: Record<string, number> = {type:1,goal:1,perso:2,style:2,refs:2,layout:3,space:2,typo:2,color:1,shape:3,img:2,inter:3,a11y:Infinity,avoid:Infinity,sys:4};
 
 export const HARD: [string, string][] = [
  ["shape.sharp","shape.round"],["shape.sharp","shape.pill"],["shape.sharp","shape.mix"],["shape.hard","shape.soft"],
  ["space.airy","space.dense"],["space.bleed","space.narrow"],
  ["perso.serious","perso.playful"],["perso.calm","perso.bold"],["perso.warm","perso.clinical"],
  ...["bw","mockup","3d","flat","gen","video","ascii","collage"].map((k): [string, string] => ["img.none","img."+k]),
- ["img.none","inter.hoverimg"],["img.none","layout.masonry"],["img.none","type.gallery"],
+ ["img.none","inter.hoverimg"],
  ...["grotesk","neogrotesk","didone","fraunces","instrument","mono","syne","bebas","archivo","hand"].map((k): [string, string] => ["typo.pairing","typo."+k]),
  ["style.neobrutal","shape.soft"],
  ["avoid.inter","typo.neogrotesk"],
  ["avoid.glass","style.glass"],["avoid.glass","shape.blur"],
  ["avoid.centered","layout.column"],
- ["avoid.shadow","shape.soft"],["avoid.shadow","shape.round"]
+ ["avoid.shadow","shape.soft"],["avoid.shadow","shape.round"],
+ /* v2 : variantes d'éléments (v.<élément>.<variante>), format (fmt.one / fmt.multi) et système */
+ ["v.hero.photo","img.none"],["v.projects.index","img.none"],["v.case.visual","img.none"],["v.about.portrait","img.none"],
+ ...["bw","mockup","3d","flat","gen","video","collage"].map((k): [string, string] => ["v.hero.manifesto","img."+k]),
+ ...["sticky","pill","full"].map((k): [string, string] => ["layout.sidebar","v.nav."+k]),
+ ["layout.column","layout.split"],
+ ["fmt.one","inter.pagetr"]
 ];
 
 export const TENSION: [string, string, string][] = [
@@ -297,7 +294,30 @@ export const TENSION: [string, string, string][] = [
  ["a11y.perf","img.gen","le WebGL génératif pèse sur les performances."],
  ["avoid.stock","img.flat","des illustrations vectorielles peuvent vite paraître génériques : précise un style."],
  ["avoid.purple","style.dark","le style dark tech utilise souvent un halo violet : précise une autre teinte."],
- ["avoid.purple","color.darkmode","l'accent #7C7CFF de cette palette est violet."]
+ ["avoid.purple","color.darkmode","l'accent #7C7CFF de cette palette est violet."],
+ /* v2 : variantes d'éléments, format et système */
+ ["img.none","layout.masonry","sans image, précise que la masonry est faite de cartes de texte."],
+ ["v.skills.logos","img.none","une grille de logos est faite d'images."],
+ ...["sticky","pill","full","side"].map((k): [string, string, string] => ["layout.os","v.nav."+k,"le bureau façon OS fait déjà office de navigation."]),
+ ["layout.sidebar","v.nav.index","l'index numéroté doit alors vivre dans la sidebar : précise-le."],
+ ["fmt.one","v.footer.sitemap","un plan du site a peu d'intérêt sur une seule page."],
+ ["fmt.one","v.nav.full","un menu plein écran est lourd pour quelques ancres."],
+ ["v.hero.terminal","style.luxe","l'invite de commande casse le luxe minimal."],
+ ["v.hero.terminal","style.edito","l'invite de commande tranche avec le style magazine."],
+ ["v.hero.terminal","perso.elegant","l'invite de commande est brute, la personnalité est raffinée."],
+ ["v.hero.terminal","perso.warm","l'invite de commande est froide pour une personnalité chaleureuse."],
+ ["v.hero.interactive","a11y.perf","un hero en canvas/3D pèse sur le chargement."],
+ ["v.hero.interactive","a11y.motion","prévois une version statique si les animations sont réduites."],
+ ["v.nav.full","goal.recruiter","un menu caché ralentit un recruteur pressé."],
+ ["v.projects.hscroll","goal.recruiter","le scroll horizontal ralentit la lecture en diagonale."],
+ ["v.contact.guided","goal.recruiter","une conversation guidée est longue pour un recruteur."],
+ ["v.skills.marquee","a11y.motion","un défilement continu doit pouvoir s'arrêter."],
+ ["v.testi.carousel","a11y.motion","un carrousel automatique doit pouvoir s'arrêter."],
+ ["v.exp.horizontal","a11y.mobile","une frise horizontale est difficile à lire sur mobile."],
+ ["v.services.cols","avoid.cards","des colonnes d'offres ressemblent vite à une grille de cartes identiques : varie leur forme."],
+ ["v.exp.cards","avoid.cards","des cartes par étape ressemblent vite à une grille de cartes identiques."],
+ ["v.projects.bento","avoid.cards","veille à des tuiles de tailles vraiment différentes."],
+ ["v.hero.photo","avoid.hero","un portrait avec accroche glisse vite vers le hero « Hi, I'm… »."]
 ];
 
 export const VG: Record<string, string> = {
@@ -442,5 +462,5 @@ export const TAGS: Record<string, Record<string, string>> = {
  inter:{magnetic:"tech",cursor:"tech fun",reveal:"edito luxe",stagger:"fun",hoverimg:"edito swiss",marquee:"fun",underline:"edito luxe calm",tilt:"fun tech",scramble:"tech retro",pagetr:"tech luxe",parallax:"tech",micro:"fun",sticky:"tech",timing:"calm"}
 };
 
-export const RAND: Record<string, number | [number, number]> = {type:1,goal:1,perso:1,style:[1,2],refs:1,layout:[1,2],space:1,typo:[1,2],color:1,shape:2,img:1,inter:[2,3],a11y:3,avoid:4};
+export const RAND: Record<string, number | [number, number]> = {type:1,goal:1,perso:1,style:[1,2],refs:1,layout:[1,2],space:1,typo:[1,2],color:1,shape:2,img:1,inter:[2,3],a11y:3,avoid:4,sys:[1,2]};
 
